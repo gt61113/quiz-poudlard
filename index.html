@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#140b24">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Quiz Poudlard">
+    <title>Quiz Magique Poudlard - Soirée Sorciers</title>
+
+    <!-- PWA Manifest Inline -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=MedievalSharp&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        potter: {
+                            gold: '#e0a96d',
+                            goldLight: '#f5d087',
+                            dark: '#0c0a09',
+                            card: '#1c1917',
+                            paper: '#292524',
+                            gryffindor: '#740001',
+                            slytherin: '#1a472a',
+                            ravenclaw: '#0e1a40',
+                            hufflepuff: '#ecb939'
+                        }
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        medieval: ['MedievalSharp', 'cursive'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: radial-gradient(circle at top, #1c1917 0%, #0c0a09 100%);
+            min-height: 100vh;
+            color: #e7e5e4;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .magical-border {
+            border: 1px solid rgba(224, 169, 109, 0.4);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(224, 169, 109, 0.1);
+        }
+
+        .magical-glow {
+            text-shadow: 0 0 12px rgba(224, 169, 109, 0.5);
+        }
+
+        .correct-btn {
+            background: rgba(20, 83, 45, 0.9) !important;
+            border-color: #22c55e !important;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+        }
+
+        .wrong-btn {
+            background: rgba(127, 29, 29, 0.9) !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+        }
+
+
+        /* ===== Design v4 : dégradés, profondeur, thème par maison ===== */
+        :root { --h1:#6d28d9; --h2:#e0a96d; }
+        body[data-house="Gryffondor"] { --h1:#a30f14; --h2:#f0b955; }
+        body[data-house="Serpentard"] { --h1:#16794a; --h2:#c3ced6; }
+        body[data-house="Serdaigle"]  { --h1:#2450b8; --h2:#d09a58; }
+        body[data-house="Poufsouffle"]{ --h1:#d4a017; --h2:#7a5c12; }
+        body {
+            background:
+                radial-gradient(ellipse at 15% -5%, rgba(124,58,237,.30), transparent 55%),
+                radial-gradient(ellipse at 95% 105%, color-mix(in srgb, var(--h1) 45%, transparent), transparent 55%),
+                linear-gradient(180deg, #160c27 0%, #0c0816 60%, #070510 100%) fixed;
+        }
+        body::before {
+            content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.55;
+            background-image:
+                radial-gradient(1.5px 1.5px at 12% 18%, #f5d087, transparent), radial-gradient(1px 1px at 78% 12%, #fff, transparent),
+                radial-gradient(1.5px 1.5px at 42% 36%, #f5d087, transparent), radial-gradient(1px 1px at 88% 48%, #fff, transparent),
+                radial-gradient(1.5px 1.5px at 22% 64%, #fff, transparent), radial-gradient(1px 1px at 66% 78%, #f5d087, transparent),
+                radial-gradient(1.5px 1.5px at 8% 90%, #f5d087, transparent), radial-gradient(1px 1px at 93% 92%, #fff, transparent);
+            animation: twinkle 5s ease-in-out infinite alternate;
+        }
+        @keyframes twinkle { from { opacity:.25 } to { opacity:.7 } }
+        .mobile-frame { position:relative; z-index:1; background: transparent !important; padding-bottom: env(safe-area-inset-bottom, 0px); }
+        header {
+            padding-top: calc(.75rem + env(safe-area-inset-top, 0px)) !important;
+            background: linear-gradient(90deg, rgba(22,12,39,.95), color-mix(in srgb, var(--h1) 30%, #0c0816) 60%, rgba(22,12,39,.95)) !important;
+            border-bottom: 1px solid transparent !important;
+            border-image: linear-gradient(90deg, transparent, var(--h2), transparent) 1;
+        }
+        header .font-cinzel { background:linear-gradient(180deg,#fff2c4,#e0a96d); -webkit-background-clip:text; background-clip:text; color:transparent; }
+        .hero-logo { box-shadow: 0 0 40px rgba(224,169,109,.35), 0 8px 24px rgba(0,0,0,.6); animation: float 4s ease-in-out infinite; }
+        @keyframes float { 50% { transform: translateY(-5px) } }
+        #screen-house h1 {
+            background: linear-gradient(180deg,#fff6d6 0%,#f0c27a 45%,#b9731f 100%); -webkit-background-clip:text; background-clip:text;
+            color: transparent !important; text-shadow:none; filter: drop-shadow(0 0 14px rgba(224,169,109,.4));
+        }
+        #screen-house .grid > button { transition: transform .2s, box-shadow .2s; border-color: rgba(255,255,255,.12) !important; }
+        #screen-house .grid > button:active { transform: scale(.96); }
+        #screen-house .grid > button:nth-child(1) { background: linear-gradient(145deg, rgba(163,15,20,.85), rgba(46,8,12,.95) 70%); box-shadow: 0 6px 22px rgba(163,15,20,.25), inset 0 1px 0 rgba(255,255,255,.12); }
+        #screen-house .grid > button:nth-child(2) { background: linear-gradient(145deg, rgba(22,121,74,.85), rgba(8,36,24,.95) 70%); box-shadow: 0 6px 22px rgba(22,121,74,.25), inset 0 1px 0 rgba(255,255,255,.12); }
+        #screen-house .grid > button:nth-child(3) { background: linear-gradient(145deg, rgba(36,80,184,.85), rgba(10,18,52,.95) 70%); box-shadow: 0 6px 22px rgba(36,80,184,.25), inset 0 1px 0 rgba(255,255,255,.12); }
+        #screen-house .grid > button:nth-child(4) { background: linear-gradient(145deg, rgba(212,160,23,.85), rgba(46,34,6,.95) 70%); box-shadow: 0 6px 22px rgba(212,160,23,.22), inset 0 1px 0 rgba(255,255,255,.12); }
+        .lb-card, .quiz-card, .res-card {
+            border: 1px solid transparent !important;
+            background:
+                linear-gradient(160deg, rgba(44,28,78,.88), rgba(14,10,28,.94)) padding-box,
+                linear-gradient(135deg, var(--h2), rgba(255,255,255,.06) 45%, var(--h1)) border-box !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,.45), 0 0 28px color-mix(in srgb, var(--h1) 22%, transparent);
+        }
+        .theme-card {
+            background: linear-gradient(120deg, color-mix(in srgb, var(--h1) 26%, #1b1230), rgba(16,11,30,.92)) !important;
+            border-left: 3px solid var(--h2) !important;
+        }
+        .opt-btn {
+            background: linear-gradient(135deg, rgba(70,48,118,.55), rgba(24,17,44,.85)) !important;
+            border-color: rgba(224,169,109,.28) !important; transition: transform .15s, border-color .2s;
+        }
+        .opt-btn:active { transform: scale(.98); border-color: var(--h2) !important; }
+        .correct-btn { background: linear-gradient(135deg, rgba(22,140,70,.95), rgba(14,80,44,.95)) !important; }
+        .wrong-btn { background: linear-gradient(135deg, rgba(180,36,36,.95), rgba(100,20,20,.95)) !important; }
+        #progress-bar { background: linear-gradient(90deg, var(--h1), var(--h2)) !important; box-shadow: 0 0 10px var(--h2); }
+        button[class*="from-amber"] {
+            background-image: linear-gradient(135deg,#fbe3a0 0%,#e0a96d 50%,#b5701f 100%) !important;
+            box-shadow: 0 6px 18px rgba(224,169,109,.3), inset 0 1px 0 rgba(255,255,255,.5);
+        }
+        section:not(.hidden) { animation: rise .45s ease both; }
+        @keyframes rise { from { opacity:0; transform: translateY(12px) } to { opacity:1; transform:none } }
+        @media (prefers-reduced-motion: reduce) { *, body::before { animation: none !important; transition: none !important; } }
+
+        @media (min-width: 640px) {
+            .mobile-frame {
+                max-width: 480px;
+                margin: 0 auto;
+                min-height: 100vh;
+                border-left: 1px solid rgba(255,255,255,0.05);
+                border-right: 1px solid rgba(255,255,255,0.05);
+            }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased h-full flex flex-col justify-between">
+
+    <div class="mobile-frame flex flex-col h-full min-h-screen relative bg-stone-950/60">
+        
+        <!-- Header Controls -->
+        <header class="border-b border-amber-900/30 bg-stone-950/80 backdrop-blur-md px-4 py-3 sticky top-0 z-50 flex justify-between items-center">
+            <div class="flex items-center space-x-2 cursor-pointer" onclick="goHome()">
+                <img src="icons/icon-192.png" alt="" class="w-8 h-8 rounded-lg shadow-lg shadow-amber-500/20">
+                <span class="font-cinzel text-base font-bold text-amber-200 tracking-wide">Poudlard Quiz</span>
+            </div>
+
+            <div class="flex items-center space-x-1.5">
+                <button id="music-toggle" onclick="toggleAudio()" class="w-8 h-8 rounded-full bg-stone-900 border border-amber-500/30 text-amber-400 flex items-center justify-center text-xs active:scale-95 transition-transform" title="Musique / Effets sonores">
+                    <i id="music-icon" class="fa-solid fa-volume-xmark"></i>
+                </button>
+
+                <button id="install-btn" onclick="installPWA()" class="bg-amber-600/30 text-amber-200 border border-amber-500/50 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center space-x-1 active:scale-95 transition-all">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Installer l'appli</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Body -->
+        <main class="flex-grow p-4 flex flex-col justify-center">
+
+            <!-- HOUSE SELECTION SCREEN -->
+            <section id="screen-house" class="space-y-5 text-center">
+                <div>
+                    <img src="icons/icon-192.png" alt="Quiz Poudlard" class="hero-logo mx-auto mb-2 w-20 h-20 rounded-2xl">
+                    <h1 class="font-cinzel text-3xl font-black text-amber-400 magical-glow">
+                        Tournoi des 4 Maisons
+                    </h1>
+                    <p class="text-xs text-stone-400 font-medieval text-base mt-1">Sélectionnez la maison à représenter</p>
+                </div>
+
+                <!-- House Grid -->
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="selectHouse('Gryffondor', '🦁', 'text-red-400 border-red-800 bg-red-950/40')" 
+                            class="p-4 rounded-xl border border-stone-800 bg-stone-900/90 hover:border-red-600 transition-all text-center group active:scale-95">
+                        <div class="text-3xl mb-1 group-hover:scale-110 transition-transform">🦁</div>
+                        <div class="font-cinzel text-sm font-bold text-red-400">Gryffondor</div>
+                        <div class="text-[10px] text-amber-300/80 mt-1 font-semibold" id="score-display-Gryffondor">Score : 0 pts</div>
+                    </button>
+
+                    <button onclick="selectHouse('Serpentard', '🐍', 'text-emerald-400 border-emerald-800 bg-emerald-950/40')" 
+                            class="p-4 rounded-xl border border-stone-800 bg-stone-900/90 hover:border-emerald-600 transition-all text-center group active:scale-95">
+                        <div class="text-3xl mb-1 group-hover:scale-110 transition-transform">🐍</div>
+                        <div class="font-cinzel text-sm font-bold text-emerald-400">Serpentard</div>
+                        <div class="text-[10px] text-amber-300/80 mt-1 font-semibold" id="score-display-Serpentard">Score : 0 pts</div>
+                    </button>
+
+                    <button onclick="selectHouse('Serdaigle', '🦅', 'text-blue-400 border-blue-800 bg-blue-950/40')" 
+                            class="p-4 rounded-xl border border-stone-800 bg-stone-900/90 hover:border-blue-600 transition-all text-center group active:scale-95">
+                        <div class="text-3xl mb-1 group-hover:scale-110 transition-transform">🦅</div>
+                        <div class="font-cinzel text-sm font-bold text-blue-400">Serdaigle</div>
+                        <div class="text-[10px] text-amber-300/80 mt-1 font-semibold" id="score-display-Serdaigle">Score : 0 pts</div>
+                    </button>
+
+                    <button onclick="selectHouse('Poufsouffle', '🦡', 'text-amber-400 border-amber-800 bg-amber-950/40')" 
+                            class="p-4 rounded-xl border border-stone-800 bg-stone-900/90 hover:border-amber-600 transition-all text-center group active:scale-95">
+                        <div class="text-3xl mb-1 group-hover:scale-110 transition-transform">🦡</div>
+                        <div class="font-cinzel text-sm font-bold text-amber-400">Poufsouffle</div>
+                        <div class="text-[10px] text-amber-300/80 mt-1 font-semibold" id="score-display-Poufsouffle">Score : 0 pts</div>
+                    </button>
+                </div>
+
+                <!-- House Leaderboard -->
+                <div class="bg-stone-900/90 border border-amber-900/40 rounded-xl p-3 text-left space-y-2 lb-card">
+                    <div class="font-cinzel text-xs font-bold text-amber-300 flex justify-between items-center border-b border-stone-800 pb-1.5">
+                        <span><i class="fa-solid fa-trophy mr-1.5 text-amber-400"></i>Classement des 4 Maisons</span>
+                        <button onclick="resetAllScores()" class="text-[10px] text-stone-500 hover:text-red-400 underline">Réinitialiser</button>
+                    </div>
+                    <div id="leaderboard-list" class="space-y-1 text-xs font-sans">
+                        <!-- Dynamic Leaderboard -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- CATEGORY SELECTION SCREEN -->
+            <section id="screen-category" class="hidden space-y-4">
+                <div class="text-center space-y-1">
+                    <span id="house-pill" class="inline-flex items-center space-x-1.5 px-3 py-0.5 rounded-full border text-xs font-bold font-cinzel">
+                        <span id="house-pill-icon">⚡</span>
+                        <span id="house-pill-name">Maison</span>
+                    </span>
+                    <h2 class="font-cinzel text-xl font-bold text-amber-300">Épreuves de la Maison</h2>
+                    <p class="text-[11px] text-stone-400">Complétez les 4 thèmes pour valider le score final !</p>
+                </div>
+
+                <div id="theme-buttons-container" class="space-y-2.5">
+                    <!-- Dynamic Theme Buttons -->
+                </div>
+
+                <div class="text-center pt-2 space-y-2">
+                    <button id="final-house-score-btn" onclick="showFinalHouseDiploma()" class="hidden w-full bg-gradient-to-r from-amber-500 to-amber-300 text-stone-950 font-cinzel font-bold py-3 rounded-xl text-xs magical-border active:scale-98">
+                        🎓 Consulter le Bilan B.U.S.E. Final de la Maison
+                    </button>
+                    <button onclick="showHouseSelection()" class="text-xs text-stone-400 hover:text-amber-300 underline block mx-auto">
+                        <i class="fa-solid fa-arrow-left mr-1"></i>Changer de Maison
+                    </button>
+                </div>
+            </section>
+
+            <!-- QUIZ QUESTION SCREEN -->
+            <section id="screen-quiz" class="hidden space-y-3">
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-xs text-stone-400">
+                        <span class="font-semibold text-amber-200" id="quiz-theme-title">Thème</span>
+                        <span>Q. <b id="current-q-num" class="text-amber-300">1</b>/<span id="total-q-num">20</span></span>
+                        <span id="quiz-score" class="font-cinzel font-bold text-amber-400 text-sm">0 pts</span>
+                    </div>
+                    <div class="w-full bg-stone-800 rounded-full h-1.5 overflow-hidden">
+                        <div id="progress-bar" class="bg-gradient-to-r from-amber-600 to-amber-300 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-stone-900/90 rounded-xl p-4 border border-stone-800 space-y-3 quiz-card">
+                    <h3 id="question-text" class="font-medieval text-base text-amber-100 text-center leading-relaxed">
+                        Chargement de la question...
+                    </h3>
+
+                    <div id="options-container" class="space-y-2">
+                        <!-- Dynamic Shuffled Options A, B, C, D -->
+                    </div>
+                </div>
+
+                <div id="feedback-container" class="hidden space-y-2">
+                    <div id="feedback-banner" aria-live="polite" class="p-2.5 rounded-lg text-center font-semibold text-xs"></div>
+                    <button onclick="nextQuestion()" class="w-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-stone-950 font-cinzel font-bold py-2.5 rounded-xl transition-all text-xs active:scale-98">
+                        Question Suivante <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- THEME END RESULTS SCREEN -->
+            <section id="screen-theme-results" class="hidden text-center space-y-4">
+                <div class="bg-stone-900/95 rounded-2xl p-5 res-card border border-amber-500/40 magical-border space-y-3">
+                    <div class="text-4xl text-amber-400 magical-glow"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+
+                    <div>
+                        <h2 class="font-cinzel text-xl font-bold text-amber-300" id="theme-res-title">Thème Terminé !</h2>
+                        <p class="text-xs text-stone-400 mt-0.5" id="theme-res-subtitle">Score pour ce thème</p>
+                    </div>
+
+                    <div class="bg-stone-950/60 p-3 rounded-xl border border-stone-800 space-y-1">
+                        <div class="text-[10px] text-stone-400 uppercase tracking-widest">Score Gagné</div>
+                        <div class="font-cinzel text-3xl font-black text-amber-400" id="theme-res-score">0 pts</div>
+                        <div class="text-xs text-stone-300" id="theme-res-accuracy">0% de bonnes réponses</div>
+                    </div>
+
+                    <button onclick="showCategorySelection()" class="w-full bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-cinzel font-bold py-3 rounded-xl text-xs active:scale-98">
+                        Continuer les Épreuves de la Maison
+                    </button>
+                </div>
+            </section>
+
+            <!-- FINAL HOUSE DIPLOMA SCREEN -->
+            <section id="screen-house-final" class="hidden text-center space-y-4">
+                <div class="bg-stone-900/95 rounded-2xl p-5 res-card border border-amber-500/40 magical-border space-y-3">
+                    <div class="text-5xl text-amber-400 magical-glow" id="final-diploma-icon"><i class="fa-solid fa-hat-wizard"></i></div>
+
+                    <div>
+                        <h2 class="font-cinzel text-2xl font-bold text-amber-300">B.U.S.E. Final Réussi !</h2>
+                        <p class="text-xs text-stone-400 mt-0.5" id="final-house-name">Maison</p>
+                    </div>
+
+                    <div class="bg-stone-950/60 p-4 rounded-xl border border-stone-800 space-y-1">
+                        <div class="text-[10px] text-stone-400 uppercase tracking-widest">Score Total Cumulé</div>
+                        <div class="font-cinzel text-4xl font-black text-amber-400" id="final-house-score">0 pts</div>
+                        <div class="text-xs text-stone-300" id="final-house-accuracy">0% sur 80 questions</div>
+                    </div>
+
+                    <div class="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-left space-y-1">
+                        <div class="font-cinzel text-xs font-bold text-amber-200" id="final-diploma-title">Mention B.U.S.E.</div>
+                        <p class="text-[11px] text-stone-300 leading-snug" id="final-diploma-desc">Évaluation finale...</p>
+                    </div>
+
+                    <button onclick="showHouseSelection()" class="w-full bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-cinzel font-bold py-3 rounded-xl text-xs active:scale-98">
+                        Retour au Menu Principal & Classement
+                    </button>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="p-2.5 text-center text-[10px] text-stone-500 border-t border-amber-900/20 bg-stone-950">
+            Édition Spéciale Soirée Harry Potter - 320 Questions
+        </footer>
+    </div>
+
+    <div id="install-modal" class="hidden fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-black/70" onclick="closeInstallHelp()">
+        <div class="res-card w-full max-w-sm rounded-2xl p-5 space-y-3 text-left" onclick="event.stopPropagation()">
+            <div class="flex items-center space-x-3">
+                <img src="icons/icon-192.png" alt="" class="w-12 h-12 rounded-xl">
+                <div>
+                    <div class="font-cinzel font-bold text-amber-200 text-sm">Installer Quiz Poudlard</div>
+                    <div class="text-[11px] text-stone-400">Comme une vraie appli, en plein écran</div>
+                </div>
+            </div>
+            <ol id="install-steps" class="text-xs text-stone-200 space-y-2 list-decimal list-inside"></ol>
+            <button onclick="closeInstallHelp()" class="w-full from-amber-600 to-amber-500 bg-gradient-to-r text-stone-950 font-cinzel font-bold py-2.5 rounded-xl text-xs">Compris</button>
+        </div>
+    </div>
+
+    <!-- JavaScript Data & Logic -->
+    <script>
+        const fullDatabase = {
+            Gryffondor: [
+                {
+                    themeId: 0,
+                    themeTitle: "Sortilèges & Enchantements de Combat",
+                    questions: [
+                        { q: "Quel sortilège Harry utilise-t-il pour terrasser Lord Voldemort lors du duel final ?", options: ["Avada Kedavra", "Expelliarmus", "Expecto Patronum", "Accio"], answer: 1 },
+                        { q: "Quel sortilège permet de repousser et détruire un Épouvantard ?", options: ["Riddikulus", "Stupefix", "Alohomora", "Diffindo"], answer: 0 },
+                        { q: "Quelle formule permet d'invoquer un Patronus pour repousser les Détraqueurs ?", options: ["Lumos Maxima", "Nox", "Expecto Patronum", "Imperium"], answer: 2 },
+                        { q: "Quel sort crée une lumière magique au bout de la baguette ?", options: ["Lumos", "Incendio", "Aguamenti", "Avis"], answer: 0 },
+                        { q: "Quelle formule éteint la lumière de la baguette produite par Lumos ?", options: ["Silencio", "Nox", "Evanesco", "Reducto"], answer: 1 },
+                        { q: "Quel est le sortilège d'Attraction servant à faire voler un objet vers soi ?", options: ["Accio", "Repulso", "Wingardium Leviosa", "Petrificus Totalus"], answer: 0 },
+                        { q: "Quel sort permet de déverrouiller des portes fermées à clé ?", options: ["Colloportus", "Alohomora", "Aparecium", "Diffindo"], answer: 1 },
+                        { q: "Quel sortilège de Lévitation prononce-t-on en disant « c'est Levi-O-sa, pas Levio-SA » ?", options: ["Wingardium Leviosa", "Levicorpus", "Locomotor", "Ascendio"], answer: 0 },
+                        { q: "Quel sortilège d'Immobilisation paralyse complètement le corps de la cible ?", options: ["Stupefix", "Petrificus Totalus", "Impedimenta", "Incarcerous"], answer: 1 },
+                        { q: "Quel sortilège stupéfiant permet d'assommer instantanément un adversaire ?", options: ["Stupefix", "Doloris", "Expelliarmus", "Confundo"], answer: 0 },
+                        { q: "Quel sortilège est utilisé pour réparer des objets brisés (comme les lunettes d'Harry) ?", options: ["Reparo", "Reducto", "Diffindo", "Tergeo"], answer: 0 },
+                        { q: "Quel sort permet de trancher ou couper un objet à distance ?", options: ["Diffindo", "Sectumsempra", "Incendio", "Evanesco"], answer: 0 },
+                        { q: "Quel sort produit une explosion de flammes ou met le feu à une cible ?", options: ["Incendio", "Aguamenti", "Confringo", "Lacarnum Inflamarae"], answer: 0 },
+                        { q: "Quel sortilège permet de repousser violemment un objet ou un ennemi ?", options: ["Repulso", "Accio", "Depulso", "Expelliarmus"], answer: 0 },
+                        { q: "Quel sortilège d'explosion détruit les obstacles solides (ex: murs) ?", options: ["Reducto", "Impedimenta", "Defodio", "Partis Temporus"], answer: 0 },
+                        { q: "Quel sortilège permet de faire apparaître des oiseaux au bout de la baguette ?", options: ["Avis", "Orchideous", "Serpensortia", "Ferula"], answer: 0 },
+                        { q: "Quel sortilège fait attaquer une volée d'oiseaux invoqués sur une cible ?", options: ["Oppugno", "Imperio", "Avifors", "Furnunculus"], answer: 0 },
+                        { q: "Quel sortilège fait surgir de l'eau claire de la baguette ?", options: ["Aguamenti", "Incendio", "Glacius", "Metelojinx"], answer: 0 },
+                        { q: "Quel sortilège fait disparaître complètement un objet ou un animal invoqué ?", options: ["Evanesco", "Aparecium", "Reducto", "Deletrius"], answer: 0 },
+                        { q: "Quel sortilège d'Entrave permet de ralentir ou bloquer les jambes d'un adversaire ?", options: ["Impedimenta", "Petrificus Totalus", "Locomotor Mortis", "Tarantallegra"], answer: 0 }
+                    ]
+                },
+                {
+                    themeId: 1,
+                    themeTitle: "Histoire & Personnages de Gryffondor",
+                    questions: [
+                        { q: "Quel est le nom du fondateur de la Maison Gryffondor ?", options: ["Salazar Gryffondor", "Godric Gryffondor", "Helga Gryffondor", "Rowena Gryffondor"], answer: 1 },
+                        { q: "Quel est l'animal symbole de la Maison Gryffondor ?", options: ["Le Lion", "L'Aigle", "Le Blaireau", "Le Serpent"], answer: 0 },
+                        { q: "Quelles sont les deux couleurs officielles de Gryffondor ?", options: ["Rouge et Or", "Vert et Argent", "Bleu et Bronze", "Jaune et Noir"], answer: 0 },
+                        { q: "Qui garde l'entrée de la salle commune de Gryffondor ?", options: ["La Grosse Dame", "La Dame Grise", "Le Gros Moine", "Le Baron Sanglant"], answer: 0 },
+                        { q: "Quel est le nom du fantôme résident de Gryffondor ?", options: ["Nick Quasi-Sans-Tête", "Peeves", "Professeur Binns", "Le Moine"], answer: 0 },
+                        { q: "Qui est la directrice de la Maison Gryffondor durant la scolarité d'Harry ?", options: ["Minerva McGonagall", "Pomona Chourave", "Dolores Ombrage", "Sybille Trelawney"], answer: 0 },
+                        { q: "Quel objet légendaire appartenu à Godric Gryffondor permet de détruire les Horcruxes ?", options: ["L'Épée de Gryffondor", "Le Choixpeau", "Le Diadème", "Le Médaillon"], answer: 0 },
+                        { q: "Quel prénom porte le père d'Harry Potter, ancien membre de Gryffondor ?", options: ["James", "Sirius", "Remus", "Arthur"], answer: 0 },
+                        { q: "Quel est le nom de la mère d'Harry Potter ?", options: ["Lily Potter", "Petunia Dursley", "Molly Weasley", "Alice Londubat"], answer: 0 },
+                        { q: "Quels sont les 4 membres originaux du groupe des Maraudeurs ?", options: ["James, Sirius, Remus et Peter", "Harry, Ron, Hermione et Neville", "Fred, George, Lee et Jordan", "Albus, Aberforth, Elphias et Doge"], answer: 0 },
+                        { q: "Comment s'appelle le parrain d'Harry, membre célèbre de Gryffondor ?", options: ["Sirius Black", "Remus Lupin", "Severus Rogue", "Alastor Maugrey"], answer: 0 },
+                        { q: "Quel professeur de Défense contre les Forces du Mal à la 3e année est un loup-garou Gryffondor ?", options: ["Remus Lupin", "Gilderoy Lockhart", "Quirinus Quirrell", "Severus Rogue"], answer: 0 },
+                        { q: "Quel membre de Gryffondor a trahi les parents d'Harry en faveur de Voldemort ?", options: ["Peter Pettigrow", "Sirius Black", "Remus Lupin", "Regulus Black"], answer: 0 },
+                        { q: "Combien de frères et sœurs Weasley ont tous été envoyés à Gryffondor ?", options: ["7", "5", "6", "4"], answer: 0 },
+                        { q: "Quel élève de Gryffondor a décapité le serpent Nagini avec l'épée de Gryffondor ?", options: ["Neville Londubat", "Harry Potter", "Ron Weasley", "Seamus Finnigan"], answer: 0 },
+                        { q: "Quelle élève brillante de Gryffondor a créé l'S.A.L.E. (Société d'Aide à la Libération des Elfes) ?", options: ["Hermione Granger", "Ginny Weasley", "Lavender Brown", "Parvati Patil"], answer: 0 },
+                        { q: "Quel est le prénom du premier ami qu'Harry rencontre dans le Poudlard Express ?", options: ["Ron", "Seamus", "Dean", "Neville"], answer: 0 },
+                        { q: "Quel Capitaine de l'équipe de Quidditch de Gryffondor était obsédé par la victoire de 1987 à 1994 ?", options: ["Oliver Dubois", "Charlie Weasley", "Angelina Johnson", "Harry Potter"], answer: 0 },
+                        { q: "Quel batteur et jumeau Weasley meurt durant la Bataille de Poudlard ?", options: ["Fred Weasley", "George Weasley", "Percy Weasley", "Bill Weasley"], answer: 0 },
+                        { q: "Quelle élève de Gryffondor devient une joueuse professionnelle de Quidditch chez les Harpies de Holyhead ?", options: ["Ginny Weasley", "Hermione Granger", "Alicia Spinnet", "Katie Bell"], answer: 0 }
+                    ]
+                },
+                {
+                    themeId: 2,
+                    themeTitle: "Lieux & Secrets de Poudlard",
+                    questions: [
+                        { q: "Quel mot de passe faut-il dire à la statue de la sorcière borgne pour aller à Hogsmeade ?", options: ["Dissendium", "Alohomora", "Caput Draconis", "Méfait accompli"], answer: 0 },
+                        { q: "Où se trouve l'entrée de la Salle sur Demande ?", options: ["Au 7e étage, en face de la tapisserie de Barnabas le Follingue", "Au rez-de-chaussée près des cuisines", "Dans les cachots près de Serpentard", "Dans la tour d'Astronomie"], answer: 0 },
+                        { q: "Quel artefact magique permet de voir l'emplacement de chaque personne dans Poudlard ?", options: ["La Carte du Maraudeur", "Le Miroir du Riséd", "Le Rapeltout", "La Pensine"], answer: 0 },
+                        { q: "Que faut-il déclarer à voix haute pour effacer la Carte du Maraudeur après utilisation ?", options: ["Méfait accompli", "Terminé", "Nox", "Rien à voir"], answer: 0 },
+                        { q: "Que faut-il dire pour activer et révéler la Carte du Maraudeur ?", options: ["Je jure solennellement que mes intentions sont mauvaises", "Revelio Poudlard", "Alohomora Carte", "Lumos Maraudeur"], answer: 0 },
+                        { q: "Où se situe le miroir du Riséd lors de la première année d'Harry ?", options: ["Dans une salle de classe abandonnée au 3e étage", "Dans la bibliothèque", "Dans la salle commune", "Dans le bureau de Dumbledore"], answer: 0 },
+                        { q: "Quel passage secret mène de la cabane hurlante au Saule Cogneur ?", options: ["Un tunnel souterrain sous les racines du Saule Cogneur", "Un escalier sous la statue", "Un portrait magique", "Le chemin de fer"], answer: 0 },
+                        { q: "Comment calme-t-on le Saule Cogneur pour entrer dans son passage secret ?", options: ["En appuyant sur une bosse spécifique du tronc", "En lui jouant de la flûte", "En lancant Incendio", "En lui lançant une pomme"], answer: 0 },
+                        { q: "Où se trouve le bureau de la directrice/du directeur de Poudlard ?", options: ["Dans une tour accessible via une gargouille de pierre", "Dans les cachots", "Dans la serre n°3", "Derrière le portrait de la Grosse Dame"], answer: 0 },
+                        { q: "Comment la nourriture apparaît-elle sur les tables de la Grande Salle ?", options: ["Elle monte depuis les cuisines situées juste en dessous", "Elle est créée par enchantement", "Les elfes la servent à la main", "Elle vole depuis les réserves"], answer: 0 },
+                        { q: "Comment accède-t-on aux cuisines de Poudlard ?", options: ["En chatouillant une poire sur un tableau de nature morte", "Avec un mot de passe", "En poussant un tonneau", "Par la trappe du 3e étage"], answer: 0 },
+                        { q: "Quel plafond magique reproduit l'état du ciel extérieur dans Poudlard ?", options: ["Le plafond de la Grande Salle", "Le plafond de la Bibliothèque", "Le plafond de la Volière", "Le plafond des dortoirs"], answer: 0 },
+                        { q: "Quel escalier de Poudlard aime changer de direction sans préavis ?", options: ["Le Grand Escalier", "L'escalier de la tour d'Astronomie", "L'escalier des cachots", "L'escalier de la Volière"], answer: 0 },
+                        { q: "Dans quel couloir l'accès est-il strictement interdit lors de la 1re année ?", options: ["Le couloir du 3e étage (droite)", "Le couloir du 7e étage", "Les cachots", "La forêt interdite"], answer: 0 },
+                        { q: "Où s'entraîne l'Armée de Dumbledore dans le 5e tome ?", options: ["Dans la Salle sur Demande", "Dans la Cabane Hurlante", "Dans la Forêt Interdite", "Dans la Grande Salle"], answer: 0 },
+                        { q: "Quel est le nom de la forêt sombre bordant le château de Poudlard ?", options: ["La Forêt Interdite", "La Forêt Noire", "La Forêt d'Enchantement", "Le Bois des Trolls"], answer: 0 },
+                        { q: "Où se situe la cabane de Rubeus Hagrid ?", options: ["À l'entrée de la Forêt Interdite", "Près du lac noir", "Dans le parc près des serres", "Au sommet de la colline"], answer: 0 },
+                        { q: "Quel lieu du parc abrite le cours de Soins aux Créatures Magiques ?", options: ["L'enclos à la lisière de la Forêt Interdite", "Le terrain de Quidditch", "La serre n°1", "La cour de récréation"], answer: 0 },
+                        { q: "Quel est le nom de la tour où les hiboux et chouettes se reposent ?", options: ["La Volière", "La Tour d'Astronomie", "La Tour Nord", "La Tour Ouest"], answer: 0 },
+                        { q: "Où se trouve le terrain officiel des matchs de Quidditch de Poudlard ?", options: ["Dans le parc du château, entouré de hautes tours", "Dans la forêt", "Sur le toit du château", "Au bord du lac"], answer: 0 }
+                    ]
+                },
+                {
+                    themeId: 3,
+                    themeTitle: "Épreuves, Défis & Courage",
+                    questions: [
+                        { q: "Comment s'appelle le chien géant à trois têtes protégeant la trappe du 3e étage ?", options: ["Touffu", "Crocdur", "Aragog", "Kreatur"], answer: 0 },
+                        { q: "Quel instrument permet d'endormir le chien à trois têtes Touffu ?", options: ["Une harpe / de la musique", "Une flûte de pan", "Un violon enchanté", "Un tambour"], answer: 0 },
+                        { q: "Quelle plante ensorcelée piège Harry, Ron et Hermione après leur chute dans la trappe ?", options: ["Le Filet du Diable", "La Mandragore", "La Tentacula Vénéneuse", "Le Mimbulus"], answer: 0 },
+                        { q: "Comment Hermione détruit-elle le Filet du Diable pour sauver Ron et Harry ?", options: ["En faisant jaillir de la lumière/du feu", "En utilisant de l'eau", "En lancant Alohomora", "En découpant avec Diffindo"], answer: 0 },
+                        { q: "Quel jeu de société géant Ron doit-il diriger pour traverser la 4e épreuve de la Pierre Philosophale ?", options: ["Une partie d'Échecs version Sorcier", "Les Dames magiques", "La Bataille navale", "Le Jeu de l'Oie"], answer: 0 },
+                        { q: "Quel poste Ron occupe-t-il sur l'échiquier géant pour gagner la partie ?", options: ["Le Cavalier", "Le Roi", "La Tour", "Fou"], answer: 0 },
+                        { q: "Quelle créature Harry affronte-t-il dans la Chambre des Secrets armé de l'épée de Gryffondor ?", options: ["Le Basilic", "L'Acromantule", "Le Sombral", "Le Troll"], answer: 0 },
+                        { q: "Quel venin mortel blesse Harry au bras lors de son combat contre le Basilic ?", options: ["Le venin de Basilic", "Le venin d'Acromantule", "Du venin de Serpentard", "Du pus de Bubobulb"], answer: 0 },
+                        { q: "Quel remède magique guérit la blessure de venin d'Harry dans la Chambre des Secrets ?", options: ["Les larmes du phénix Fumseck", "La Potion Polynectar", "Un Bézoard", "Du Poussos"], answer: 0 },
+                        { q: "Quel dragon Harry doit-il affronter lors de la 1re tâche du Tournoi des Trois Sorciers ?", options: ["Le Magyar à pointes", "Le Vert Gallois", "Le Boutefeu Chinois", "Le Suède à museau court"], answer: 0 },
+                        { q: "Quel balai Harry invoque-t-il avec Accio pour échapper au dragon Magyar à pointes ?", options: ["Son Éclair de Feu", "Son Nimbus 2000", "Un Comet 260", "Un Brossdur"], answer: 0 },
+                        { q: "Que doit récupérer chaque champion lors de la 1re épreuve du Tournoi des Trois Sorciers ?", options: ["Un œuf d'or", "Une clé d'argent", "Un trophée", "Une coupe"], answer: 0 },
+                        { q: "Comment les champions découvrent-ils le secret de l'œuf d'or pour la 2e épreuve ?", options: ["En l'ouvrant sous l'eau", "En le chauffant au feu", "En utilisant Alohomora", "En le frappant"], answer: 0 },
+                        { q: "Plante magique mangée par Harry pour respirer sous l'eau au lac noir lors du Tournoi :", options: ["La Branchiflore", "La Mandragore", "Le Filet du Diable", "L'Armoise"], answer: 0 },
+                        { q: "Qui Harry sauve-t-il en plus de Ron lors de la 2e épreuve dans le lac noir ?", options: ["Gabrielle Delacour", "Cho Chang", "Hermione Granger", "Fleur Delacour"], answer: 0 },
+                        { q: "Quelle est la 3e et dernière épreuve du Tournoi des Trois Sorciers ?", options: ["La traversée d'un Labyrinthe géant", "Un duel d'échecs", "Une course de balai", "Un combat de dragons"], answer: 0 },
+                        { q: "Quel objet situé au centre du labyrinthe est en réalité un Portoloin ?", options: ["La Coupe des Trois Sorciers", "L'œuf d'or", "La baguette de Sureau", "Une couronne"], answer: 0 },
+                        { q: "Quel étudiant de Poufsouffle touche la Coupe en même temps qu'Harry et se fait tuer par Pettigrow ?", options: ["Cédric Diggory", "Ernie Macmillan", "Justin Finch-Fletchley", "Zacharias Smith"], answer: 0 },
+                        { q: "Quel sortilège Harry utilise-t-il à 13 ans pour repousser plus de 100 Détraqueurs près du lac ?", options: ["Expecto Patronum", "Riddikulus", "Stupefix", "Lumos Maxima"], answer: 0 },
+                        { q: "Quelle créature magique volante Harry et Hermione chevauchent-ils pour sauver Sirius Black ?", options: ["Buck (l'Hippogriffe)", "Fumseck", "Un Sombral", "Un Dragon"], answer: 0 }
+                    ]
+                }
+            ],
+            Serpentard: [
+                {
+                    themeId: 0,
+                    themeTitle: "Magie Noire & Sortilèges Interdits",
+                    questions: [
+                        { q: "Comment appelle-t-on les 3 sortilèges dont l'utilisation mène directement à Azkaban ?", options: ["Les Malédictions Impardonnables", "Les Sorts de Métamorphose", "Les Envoûtements Noirs", "Les Maléfices du Sang"], answer: 0 },
+                        { q: "Quel sortilège de mort produit une lueur verte étincelante et tue instantanément ?", options: ["Avada Kedavra", "Doloris", "Imperium", "Sectumsempra"], answer: 0 },
+                        { q: "Quel sortilège de torture inflige une douleur physique insupportable à la victime ?", options: ["Doloris", "Imperium", "Avada Kedavra", "Levicorpus"], answer: 0 },
+                        { q: "Quel sortilège de contrôle permet de soumettre totalement la volonté d'une personne ?", options: ["Imperium", "Doloris", "Confundo", "Oubliette"], answer: 0 },
+                        { q: "Quel sortilège inventé par Severus Rogue provoque de profondes entailles et saignements ?", options: ["Sectumsempra", "Vulnera Sanentur", "Diffindo", "Reducto"], answer: 0 },
+                        { q: "Quel est le sortilège de guérison inventé par Rogue pour refermer les blessures de Sectumsempra ?", options: ["Vulnera Sanentur", "Episkey", "Reparo", "Ferula"], answer: 0 },
+                        { q: "Quel sortilège permet de suspendre une victime par la cheville dans les airs ?", options: ["Levicorpus", "Liberacorpus", "Ascendio", "Wingardium"], answer: 0 },
+                        { q: "Quel sortilège annule le pendellement de Levicorpus et fait retomber la victime ?", options: ["Liberacorpus", "Levicorpus", "Finite Incantatem", "Evanesco"], answer: 0 },
+                        { q: "Quel sortilège invoque un serpent venimeux au bout de la baguette ?", options: ["Serpensortia", "Vipera Evanesca", "Avis", "Orchideous"], answer: 0 },
+                        { q: "Quel sortilège fait disparaître le serpent invoqué par Serpensortia ?", options: ["Vipera Evanesca", "Incendio", "Evanesco", "Reducto"], answer: 0 },
+                        { q: "Quel sortilège permet d'extraire ou de lire les pensées et souvenirs d'une personne ?", options: ["Legilimens", "Occlumancie", "Imperium", "Confundo"], answer: 0 },
+                        { q: "Quelle discipline magique consiste à fermer son esprit contre la Légilimancie ?", options: ["L'Occlumancie", "La Légilimancie", "La Divination", "L'Arithmancie"], answer: 0 },
+                        { q: "Quel sortilège crée un pacte magique inviolable sous peine de mort immédiate ?", options: ["Le Serment Inviolable", "Le Pacte de Sang", "L'Imperium", "Le Maléfice de Cuirasse"], answer: 0 },
+                        { q: "Quel symbole magique les Mangemorts portent-ils sur l'avant-bras gauche ?", options: ["La Marque Ténébreuse", "L'Œil de Serpent", "Le Blason de Serpentard", "La Croix Noire"], answer: 0 },
+                        { q: "Quel sortilège permet de faire apparaître la Marque Ténébreuse dans le ciel ?", options: ["Morsmordre", "Lumos Nox", "Avada Kedavra", "Serpensortia"], answer: 0 },
+                        { q: "Quels animaux forment le symbole de la Marque Ténébreuse ?", options: ["Un crâne et un serpent", "Un dragon et un aigle", "Un lion et un loup", "Une araignée et un squelette"], answer: 0 },
+                        { q: "Quel maléfice fait grandir démesurément les dents de la victime (comme celles d'Hermione) ?", options: ["Densaugeo", "Furnunculus", "Rictusempra", "Engorgio"], answer: 0 },
+                        { q: "Quel sortilège prive immédiatement une victime de sa voix ?", options: ["Silencio", "Quietus", "Sonorus", "Langlock"], answer: 0 },
+                        { q: "Quel est le nom du puissant feu magique incontrôlable et destructeur utilisé dans la Salle sur Demande ?", options: ["Le Feudeymon", "Incendio Maxima", "Le Feu d'Enfer", "Magma Spirit"], answer: 0 },
+                        { q: "Quel objet magique noir permet d'enfermer un fragment d'âme pour devenir immortel ?", options: ["Un Horcruxe", "Une Relique", "Un Retourneur de Temps", "Une Pensine"], answer: 0 }
+                    ]
+                },
+                {
+                    themeId: 1,
+                    themeTitle: "Fondateurs, Héritiers & Mangemorts",
+                    questions: [
+                        { q: "Quel est le nom complet du fondateur de la Maison Serpentard ?", options: ["Salazar Serpentard", "Godric Serpentard", "Tom Serpentard", "Severus Serpentard"], answer: 0 },
+                        { q: "Quel don d'expression rare et sombre Salazar Serpentard possédait-il ?", options: ["Le Fourchelangue", "La Métamorphose", "L'Invisibilité", "La Télépathie"], answer: 0 },
+                        { q: "Quel était le nom de naissance de Lord Voldemort ?", options: ["Tom Elvis Jedusor", "Lucius Malefoy", "Regulus Black", "Gellert Grindelwald"], answer: 0 },
+                        { q: "De quel sorcier pur-sang Tom Jedusor est-il le descendant direct par sa mère ?", options: ["Salazar Serpentard", "Godric Gryffondor", "Merlin", "Ignatius Gaunt"], answer: 0 },
+                        { q: "Quel rival d'Harry à Poudlard est le fils d'un riche Mangemort de Serpentard ?", options: ["Drago Malefoy", "Vincent Crabbe", "Gregory Goyle", "Blaise Zabini"], answer: 0 },
+                        { q: "Quels sont les prénoms des deux parents de Drago Malefoy ?", options: ["Lucius et Narcissa", "Abraxas et Bellatrix", "Rodolphus et Walburga", "Cygnus et Druella"], answer: 0 },
+                        { q: "Quels sont les noms des deux acolytes qui accompagnent toujours Drago Malefoy ?", options: ["Crabbe et Goyle", "Fred et George", "Seamus et Dean", "Pucey et Flint"], answer: 0 },
+                        { q: "Quelle fanatique Mangemort de Serpentard est la sœur de Narcissa Malefoy ?", options: ["Bellatrix Lestrange", "Andromède Tonks", "Rita Skeeter", "Dolores Ombrage"], answer: 0 },
+                        { q: "Quel Maître des Potions de Serpentard a été l'espion secret d'Albus Dumbledore ?", options: ["Severus Rogue", "Horace Slughorn", "Tom Jedusor", "Corban Yaxley"], answer: 0 },
+                        { q: "Quel surnom Severus Rogue s'était-il donné dans son vieux manuel de potions ?", options: ["Le Prince de Sang-Mêlé", "Le Roi des Potions", "L'Ombre Noire", "Le Sorcier d'Argent"], answer: 0 },
+                        { q: "Quel enseignant de Serpentard collectionnait les élèves célèbres dans son « Club » ?", options: ["Horace Slughorn", "Severus Rogue", "Quirinus Quirrell", "Armando Dippet"], answer: 0 },
+                        { q: "Quel frère cadet de Sirius Black était un Serpentard devenu Mangemort puis repenti ?", options: ["Regulus Arcturus Black", "Phineas Nigellus", "Alphard Black", "Cygnus Black"], answer: 0 },
+                        { q: "Quel horcruxe Regulus Black a-t-il dérobé dans la grotte aquatique ?", options: ["Le Médaillon de Serpentard", "La Coupe de Poufsouffle", "Le Diadème", "Le Journal"], answer: 0 },
+                        { q: "Quel Mangemort dirige le Département de la Justice Magique après la chute du Ministère ?", options: ["Corban Yaxley", "Thorfinn Rowle", "Antonim Dolohov", "Walden Macnair"], answer: 0 },
+                        { q: "Quelle femme Mangemort a participé à la torture des parents de Neville Londubat ?", options: ["Bellatrix Lestrange", "Alecto Carrow", "Narcissa Malefoy", "Pansy Parkinson"], answer: 0 },
+                        { q: "Quel Mangemort lâche s'est changé en rat (Croûtard) pendant 12 ans ?", options: ["Peter Pettigrow", "Barty Croupton Jr.", "Lucius Malefoy", "Fenrir Greyback"], answer: 0 },
+                        { q: "Quel élève de Serpentard de la promotion d'Harry a pour mère une sorcière réputée pour sa beauté et ses nombreux mariages ?", options: ["Blaise Zabini", "Theodore Nott", "Marcus Flint", "Adrian Pucey"], answer: 0 },
+                        { q: "Quelle élève Serpentard de la promotion d'Harry est proche de Drago Malefoy ?", options: ["Pansy Parkinson", "Millicent Bulstrode", "Daphne Greengrass", "Flora Carrow"], answer: 0 },
+                        { q: "Quel Mangemort s'est fait passer pour Alastor Maugrey grâce à la Potion Polynectar ?", options: ["Barty Croupton Jr.", "Igor Karkaroff", "Thorfinn Rowle", "Augustus Rookwood"], answer: 0 },
+                        { q: "Quel est le nom du fantôme résident de Serpentard, couvert de taches de sang ?", options: ["Le Baron Sanglant", "Nick Quasi-Sans-Tête", "Le Gros Moine", "La Dame Grise"], answer: 0 }
+                    ]
+                },
+                {
+                    themeId: 2,
+                    themeTitle: "L'Art des Potions & Ingrédients",
+                    questions: [
+                        { q: "Quelle potion complexe permet de prendre l'apparence physique d'une autre personne ?", options: ["La Potion Polynectar", "L'Amortentia", "Le Veritaserum", "Le Felix Felicis"], answer: 0 },
+                        { q: "Combien de temps faut-il pour faire mijoter la Potion Polynectar ?", options: ["Un mois entier", "Une semaine", "24 heures", "Un an"], answer: 0 },
+                        { q: "Quel ingrédient personnel doit-on ajouter en dernier dans la Potion Polynectar ?", options: ["Un morceau du corps (ex: cheveu)", "Une lueur de magie", "Une goutte de sang", "Une feuille de mandragore"], answer: 0 },
+                        { q: "Que se passe-t-il si l'on met un poil de chat dans la Potion Polynectar ?", options: ["La transformation est défectueuse avec des traits félins", "On se transforme en vrai chat", "La potion explose", "Rien ne se passe"], answer: 0 },
+                        { q: "Quelle potion dorée apporte une chance absolue pendant une durée limitée ?", options: ["Le Felix Felicis", "L'Amortentia", "Le Poussos", "Le Veritaserum"], answer: 0 },
+                        { q: "Quel élève gagne la fiole de Felix Felicis lors du 1er cours du Professeur Slughorn ?", options: ["Harry Potter", "Hermione Granger", "Drago Malefoy", "Ron Weasley"], answer: 0 },
+                        { q: "Quelle potion est le filtre d'amour le plus puissant du monde sorcier ?", options: ["L'Amortentia", "Le Polynectar", "Le Veritaserum", "La Potion d'Aura"], answer: 0 },
+                        { q: "Quelle est la particularité olfactive de la potion Amortentia ?", options: ["Elle dégage une odeur différente selon ce qui attire la personne", "Elle n'a aucune odeur", "Elle sent la vanille et le soufre", "Elle sent la rose séchée"], answer: 0 },
+                        { q: "Quel est le sérum de vérité le plus puissant, incolore et inodore ?", options: ["Le Veritaserum", "La Goutte du Lezard", "L'Amortentia", "Le Felix Felicis"], answer: 0 },
+                        { q: "Combien de gouttes de Veritaserum suffisent pour faire avouer tous ses secrets ?", options: ["3 gouttes", "1 fiole entière", "10 gouttes", "1 goutte"], answer: 0 },
+                        { q: "Quelle potion permet de plonger le buveur dans un sommeil ressemblant à la mort ?", options: ["Le Filtre de Mort Vivante", "La Potion Tue-Loup", "Le Filtre de Paix", "Le Poussos"], answer: 0 },
+                        { q: "Quel ingrédient faut-il écraser avec la lame d'un couteau d'argent selon le Prince ?", options: ["La Fève Sopophorique", "La Racine d'Asphodèle", "Le Crotale séché", "La Branchiflore"], answer: 0 },
+                        { q: "Quel antidote universel extrait de l'estomac d'une chèvre guérit la plupart des poisons ?", options: ["Le Bézoard", "Le Pus de Bubobulb", "La Dictame", "Les Larmes de Phénix"], answer: 0 },
+                        { q: "Quelle potion permet aux loups-garous de garder leur esprit humain à la pleine lune ?", options: ["La Potion Tue-Loup", "Le Filtre de Paix", "Le Polynectar", "Le Felix Felicis"], answer: 0 },
+                        { q: "Potion permettant de faire repousser les os manquants en une nuit dans la souffrance :", options: ["Le Poussos", "Le Vulnera Sanentur", "Le Reparo", "Le Veritaserum"], answer: 0 },
+                        { q: "Quelle potion apaisante permet de calmer l'anxiété et l'agitation nerveuse ?", options: ["Le Filtre de Paix", "La Goutte du Lezard", "L'Amortentia", "Le Poussos"], answer: 0 },
+                        { q: "Potion utilisée pour soigner les furoncles et les éruptions cutanées :", options: ["La Potion contre les Furoncles", "La Dictame", "Le Pus de Bubobulb", "Le Tergeo"], answer: 0 },
+                        { q: "Potion rajeunissante ou vieillissante permettant de modifier temporairement l'âge :", options: ["La Potion de Vieillissement", "Le Felix Felicis", "Le Polynectar", "L'Amortentia"], answer: 0 },
+                        { q: "Quel ingrédient extrêmement rare est extrait de la corne d'un Éruptif ou Bicorne ?", options: ["La poudre de corne de Bicorne", "La fève de mandragore", "Le venin de basilic", "La peau de serpent"], answer: 0 },
+                        { q: "Quel ingrédient séché issu d'un serpent africain entre dans la Potion Polynectar ?", options: ["Peau de Serpent d'Arbre du Cap", "Écaille de dragon", "Crochet de basilic", "Langue de serpent"], answer: 0 }
+                    ]
+                },
+                {
+                    themeId: 3,
+                    themeTitle: "Horcruxes & Secrets des Forces du Mal",
+                    questions: [
+                        { q: "Combien d'Horcruxes Lord Voldemort a-t-il cherché à créer intentionnellement ?", options: ["6", "7", "5", "8"], answer: 0 },
+                        { q: "Quel Horcruxe était le journal intime de Tom Jedusor détruit en 2e année ?", options: ["Le Journal de Tom Jedusor", "Le Diadème", "Le Médaillon", "La Bague"], answer: 0 },
+                        { q: "Quel objet a servi à détruire le Journal de Tom Jedusor dans la Chambre des Secrets ?", options: ["Un crochet de Basilic", "L'épée de Gryffondor", "Le Feudeymon", "Un sort de mort"], answer: 0 },
+                        { q: "Quel bijou de la famille Gaunt contenant la Pierre de Résurrection était un Horcruxe ?", options: ["La Bague de Marvolo Gaunt", "Le Médaillon", "La Couronne", "Le Bracelet"], answer: 0 },
+                        { q: "Qui a détruit la Bague de Marvolo Gaunt au prix d'une malédiction à la main ?", options: ["Albus Dumbledore", "Harry Potter", "Severus Rogue", "Ron Weasley"], answer: 0 },
+                        { q: "Quel médaillon antique ayant appartenu à Salazar Serpentard était un Horcruxe ?", options: ["Le Médaillon de Serpentard", "Le Médaillon de Serdaigle", "La Broche d'Or", "Le Collier de Poudlard"], answer: 0 },
+                        { q: "Qui a détruit le Médaillon de Serpentard avec l'épée de Gryffondor ?", options: ["Ron Weasley", "Harry Potter", "Hermione Granger", "Neville Londubat"], answer: 0 },
+                        { q: "Quel artefact appartenant à Helga Poufsouffle a été caché chez les Lestrange ?", options: ["La Coupe de Poufsouffle", "Le Diadème", "Le Miroir", "Le Chaudron"], answer: 0 },
+                        { q: "Qui a détruit la Coupe de Poufsouffle dans la Chambre des Secrets ?", options: ["Hermione Granger", "Ron Weasley", "Harry Potter", "Ginny Weasley"], answer: 0 },
+                        { q: "Quel bijou appartenant à Rowena Serdaigle a été caché dans la Salle sur Demande ?", options: ["Le Diadème de Serdaigle", "La Bague", "La Couronne", "Le Pendentif"], answer: 0 },
+                        { q: "Comment le Diadème de Serdaigle a-t-il été détruit lors de la Bataille de Poudlard ?", options: ["Par le Feudeymon invoqué par Crabbe", "Avec un crochet de basilic", "Par l'épée de Gryffondor", "Par Avada Kedavra"], answer: 0 },
+                        { q: "Quel animal domestique et reptile de Voldemort était son dernier Horcruxe intentionnel ?", options: ["Nagini", "Aragog", "Touffu", "Crocdur"], answer: 0 },
+                        { q: "Quel Horcruxe accidentel Voldemort a-t-il créé la nuit où il a attaqué les Potter ?", options: ["Harry Potter lui-même", "Neville Londubat", "La maison des Potter", "Sa propre baguette"], answer: 0 },
+                        { q: "Où se situait la grotte secrète où Voldemort avait caché le Médaillon de Serpentard ?", options: ["Au bord de la mer dans une falaise", "Dans la Forêt Interdite", "Dans les cachots de Poudlard", "Au Ministère"], answer: 0 },
+                        { q: "Quelle potion toxique Dumbledore a-t-il dû boire entièrement dans la grotte ?", options: ["Le Breuvage de Désespoir", "Le Veritaserum", "La Potion Polynectar", "Le Filtre de Mort"], answer: 0 },
+                        { q: "Quelles créatures cadavériques immergées dans l'eau de la grotte gardaient le Médaillon ?", options: ["Les Inferi", "Les Détraqueurs", "Les Strangulots", "Les Goules"], answer: 0 },
+                        { q: "Quel élément élémentaire permet de repousser et faire fuir les Inferi ?", options: ["Le Feu", "L'Eau", "La Lumière de Lumos", "Le Vent"], answer: 0 },
+                        { q: "Quel artefact magique permet d'extraire et de stocker des souvenirs pour les revoir ?", options: ["La Pensine", "Le Miroir du Riséd", "Le Scrutation", "La Boule de Cristal"], answer: 0 },
+                        { q: "Quel marchand d'objets de Magie Noire est situé dans l'Allée des Embrumes ?", options: ["Borgin et Burkes", "Ollivander", "Honeydukes", "Zonko"], answer: 0 },
+                        { q: "Quels sont les 3 objets mythiques constituant les Reliques de la Mort ?", options: ["La Baguette de Sureau, la Pierre de Résurrection, la Cape d'Invisibilité", "L'Épée, le Choixpeau, le Miroir", "Les 3 Horcruxes royaux", "Les 3 coupes de Poudlard"], answer: 0 }
+                    ]
+                }
+            ],
+            Serdaigle: [
+                {
+                    themeId: 0,
+                    themeTitle: "Histoire, Philosophie & Fondateurs",
+                    questions: [
+                        { q: "Quel est le nom de la fondatrice de la Maison Serdaigle ?", options: ["Rowena Serdaigle", "Helga Serdaigle", "Minerva Serdaigle", "Luna Serdaigle"], answer: 0 },
+                        { q: "Quelle est la célèbre devise gravée de la Maison Serdaigle ?", options: ["L'esprit sans mesure est le plus grand trésor de l'homme", "Force et Courage", "Ruse et Ambition", "Loyauté et Travail"], answer: 0 },
+                        { q: "Quels sont les deux animaux symboles de Serdaigle (livre vs films) ?", options: ["L'Aigle et le Corbeau", "Le Lion et le Tigre", "Le Blaireau et le Chien", "Le Serpent et le Lézard"], answer: 0 },
+                        { q: "Quelles sont les deux couleurs officielles de Serdaigle dans les livres ?", options: ["Bleu et Bronze", "Bleu et Argent", "Vert et Or", "Rouge et Or"], answer: 0 },
+                        { q: "Quel objet magique légendaire appartenu à Rowena accordait une intelligence supérieure ?", options: ["Le Diadème de Serdaigle", "La Coupe", "L'Épée", "Le Médaillon"], answer: 0 },
+                        { q: "Quelle fille de Rowena Serdaigle a volé le Diadème par jalousie ?", options: ["Helena Serdaigle", "Rowena Jr", "Luna", "Cho"], answer: 0 },
+                        { q: "Quel est le nom du fantôme résident de Serdaigle (Helena Serdaigle) ?", options: ["La Dame Grise", "La Grosse Dame", "Mimi Geignarde", "La Baronnette"], answer: 0 },
+                        { q: "Quel fantôme jaloux a assassiné Helena Serdaigle en Albanie ?", options: ["Le Baron Sanglant", "Nick Quasi-Sans-Tête", "Le Gros Moine", "Peeves"], answer: 0 },
+                        { q: "Qui est le directeur de la Maison Serdaigle et professeur d'Enchantements ?", options: ["Filius Flitwick", "Gilderoy Lockhart", "Severus Rogue", "Albus Dumbledore"], answer: 0 },
+                        { q: "Quelle particularité physique possède le professeur Filius Flitwick ?", options: ["Il a du sang de Goblin (très petite taille)", "Il est un loup-garou", "Il a un œil magique", "Il est géant"], answer: 0 },
+                        { q: "Comment entre-t-on dans la salle commune de Serdaigle ?", options: ["En répondant correctement à une énigme philosophique", "Avec un mot de passe", "En tapant sur un tonneau", "En poussant un tableau"], answer: 0 },
+                        { q: "Que se passe-t-il si un élève donne une mauvaise réponse à l'énigme de la porte ?", options: ["La porte reste fermée et il doit attendre une bonne réponse", "Il est arrosé de vinaigre", "La porte l'attaque", "Il perd 10 points"], answer: 0 },
+                        { q: "Où se trouve la tour de Serdaigle dans le château ?", options: ["Du côté ouest du château", "Dans les cachots", "Près des serres", "Près de la Grande Salle"], answer: 0 },
+                        { q: "Quelle pierre précieuse remplit le sablier des points de Serdaigle ?", options: ["Les Saphirs", "Les Émeraudes", "Les Rubis", "Les Topazes"], answer: 0 },
+                        { q: "Quelle professeure excentrique enseigne la Divination à Poudlard ?", options: ["Sybille Trelawney", "Minerva McGonagall", "Pomona Chourave", "Septima Vector"], answer: 0 },
+                        { q: "Quel sorcier vaniteux et auteur de livres de défense (2e année) venait de Serdaigle ?", options: ["Gilderoy Lockhart", "Quirinus Quirrell", "Remus Lupin", "Horace Slughorn"], answer: 0 },
+                        { q: "Quelle élève de Serdaigle, attrapeuse de Quidditch, a été le premier amour d'Harry ?", options: ["Cho Chang", "Luna Lovegood", "Marietta Edgecombe", "Padma Patil"], answer: 0 },
+                        { q: "Quelle élève de Serdaigle excentrique porte des lunettes Lorgnospectres ?", options: ["Luna Lovegood", "Cho Chang", "Padma Patil", "Penelope Declair"], answer: 0 },
+                        { q: "Quel est le nom du père de Luna Lovegood, rédacteur du magazine Le Chicaneur ?", options: ["Xenophilius Lovegood", "Garrick Lovegood", "Rolf Lovegood", "Ludo Lovegood"], answer: 0 },
+                        { q: "Quelle professeure enseigne l'Astronomie à Poudlard ?", options: ["Aurora Sinistra", "Septima Vector", "Charité Burbage", "Bathsheda Babbling"], answer: 0 }
+                    ]
+                },
+                {
+                    themeId: 1,
+                    themeTitle: "Astronomie, Arithmancie & Énigmes",
+                    questions: [
+                        { q: "Quelle est la plus haute tour du château de Poudlard où se déroulent les cours d'Astronomie ?", options: ["La Tour d'Astronomie", "La Tour de Gryffondor", "La Tour Ouest", "La Tour de l'Horloge"], answer: 0 },
+                        { q: "Quel personnage majeur est mort en tombant du haut de la Tour d'Astronomie ?", options: ["Albus Dumbledore", "Severus Rogue", "Sirius Black", "Remus Lupin"], answer: 0 },
+                        { q: "À quelle heure de la nuit les cours d'Astronomie ont-ils généralement lieu ?", options: ["À minuit", "À 20h00", "À 3h du matin", "À l'aube"], answer: 0 },
+                        { q: "Quel instrument d'observation est obligatoire pour chaque élève en cours d'Astronomie ?", options: ["Un télescope en laiton", "Une loupe magique", "Une boule de cristal", "Un astrolabe"], answer: 0 },
+                        { q: "Quelle matière basée sur l'étude magique des nombres Hermione adore-t-elle ?", options: ["L'Arithmancie", "La Divination", "L'Herbologie", "La Métamorphose"], answer: 0 },
+                        { q: "Qui est le professeur d'Arithmancie à Poudlard ?", options: ["Septima Vector", "Aurora Sinistra", "Sybille Trelawney", "Bathsheda Babbling"], answer: 0 },
+                        { q: "Quel chiffre est considéré comme le nombre magique le plus puissant selon l'Arithmancie ?", options: ["Le chiffre 7", "Le chiffre 3", "Le chiffre 12", "Le chiffre 13"], answer: 0 },
+                        { q: "Quelle matière consiste à déchiffrer et traduire d'anciens alphabets magiques ?", options: ["L'Étude des Runes Anciennes", "L'Arithmancie", "L'Histoire de la Magie", "La Botanique"], answer: 0 },
+                        { q: "Objet magique remis par McGonagall à Hermione pour suivre plusieurs cours en même temps :", options: ["Le Retourneur de Temps", "La Pensine", "La Carte du Maraudeur", "Le Rapeltout"], answer: 0 },
+                        { q: "Quelle est la règle absolue à respecter lors de l'utilisation d'un Retourneur de Temps ?", options: ["Ne jamais être vu par son soi du passé", "Ne pas parler fort", "Ne pas utiliser sa baguette", "Revenir avant minuit"], answer: 0 },
+                        { q: "Quelle créature répond à des énigmes et gardait la Coupe dans le Labyrinthe ?", options: ["Le Sphinx", "Le Centaure", "L'Acromantule", "Le Griffon"], answer: 0 },
+                        { q: "Énigme du Sphinx : « Qu'est-ce qui marche à 4 pattes le matin, 2 le midi et 3 le soir ? »", options: ["L'Homme", "Le Chien", "Le Phénix", "Le Dragon"], answer: 0 },
+                        { q: "Énigme de Serdaigle : « Qui est arrivé en premier, le phénix ou la flamme ? »", options: ["Aucun, un cercle n'a pas de commencement", "Le phénix", "La flamme", "L'œuf"], answer: 0 },
+                        { q: "Quel artefact magique permet de stocker et d'analyser visuellement ses propres pensées ?", options: ["La Pensine", "Le Miroir", "Le Scrutation", "La Boule de cristal"], answer: 0 },
+                        { q: "Quelle branche de la magie s'intéresse à l'étude des étoiles, planètes et constellations ?", options: ["L'Astronomie", "La Divination", "L'Astrologie", "L'Arithmancie"], answer: 0 },
+                        { q: "Quelle élève de Serdaigle amie de Cho Chang trahit l'Armée de Dumbledore ?", options: ["Marietta Edgecombe", "Padma Patil", "Penelope Declair", "Luna Lovegood"], answer: 0 },
+                        { q: "Quel mot magique est apparu en pustules sur le visage de Marietta après sa trahison ?", options: ["SNEAK (Balance)", "TRAITOR", "LIAR", "CRACMOL"], answer: 0 },
+                        { q: "Quel sortilège inventé par Hermione a puni la trahison de Marietta ?", options: ["Un maléfice lié à la liste d'émargement", "Stupefix", "Furnunculus", "Silencio"], answer: 0 },
+                        { q: "Quelle carte du ciel les étudiants doivent-ils tracer lors du B.U.S.E. d'Astronomie ?", options: ["La carte des constellations et planètes", "La carte de Poudlard", "La carte de la Lune", "La trajectoire des comètes"], answer: 0 },
+                        { q: "Quel journal alternatif dirigé par Xenophilius Lovegood publie des théories farfelues ?", options: ["Le Chicaneur", "La Gazette du Sorcier", "Sorcière Hebdo", "Le Prophète"], answer: 0 }
+                    ]
+                },
+                {
+                    themeId: 2,
+                    themeTitle: "Sorts Transfiguratifs & Métamorphose",
+                    questions: [
+                        { q: "Quel professeur enseigne la Métamorphose (Transfiguration) à Poudlard ?", options: ["Minerva McGonagall", "Filius Flitwick", "Severus Rogue", "Albus Dumbledore"], answer: 0 },
+                        { q: "Comment appelle-t-on un sorcier capable de se transformer à volonté en un animal ?", options: ["Un Animagus", "Un Métamorphomage", "Un Fourchelangue", "Un Legilimens"], answer: 0 },
+                        { q: "En quel animal Minerva McGonagall peut-elle se transformer ?", options: ["En chat tabby", "En chouette", "En lionne", "En corbeau"], answer: 0 },
+                        { q: "En quel animal James Potter se transformait-il ?", options: ["En Cerf (Cornedrue)", "En Chien", "En Rat", "En Loup"], answer: 0 },
+                        { q: "En quel animal Sirius Black se transformait-il ?", options: ["En grand chien noir (Patmol)", "En Cerf", "En Rat", "En Renard"], answer: 0 },
+                        { q: "En quel animal Peter Pettigrow se transformait-il ?", options: ["En rat (Queudver)", "En chat", "En furet", "En belette"], answer: 0 },
+                        { q: "Quelle institution du Ministère enregistre légalement tous les Animagi ?", options: ["Le Registre des Animagi", "Le Magenmagot", "Le Bureau des Aurors", "Le Département des Mystères"], answer: 0 },
+                        { q: "Combien d'Animagi officiellement enregistrés y avait-il au XXe siècle ?", options: ["7", "10", "12", "3"], answer: 0 },
+                        { q: "Quel sortilège permet de transformer un objet inanimé en oiseau ?", options: ["Avifors", "Orchideous", "Avis", "Vera Verto"], answer: 0 },
+                        { q: "Quel sortilège transforme un teckel ou petit animal en coupe à eau ?", options: ["Vera Verto", "Avifors", "Reparo", "Evanesco"], answer: 0 },
+                        { q: "Quel sortilège de Métamorphose permet de changer la couleur d'un objet ?", options: ["Colovaria", "Lumos", "Aparecium", "Diffindo"], answer: 0 },
+                        { q: "Quel sortilège fait disparaître un objet créé par Métamorphose ?", options: ["Evanesco", "Deletrius", "Reducto", "Nox"], answer: 0 },
+                        { q: "Quel sortilège permet de faire apparaître des fleurs du néant ?", options: ["Orchideous", "Avis", "Serpensortia", "Aguamenti"], answer: 0 },
+                        { q: "Quelle est la loi fondamentale stipulant qu'on ne peut pas créer de la nourriture ?", options: ["La Loi de Gamp", "La Loi de Merlin", "La Loi d'Arithmancie", "Le Code de Poudlard"], answer: 0 },
+                        { q: "Combien d'exceptions principales compte la Loi de Gamp ?", options: ["5 exceptions", "3 exceptions", "7 exceptions", "10 exceptions"], answer: 0 },
+                        { q: "Quel sortilège permet de donner vie à des statues de pierre pour défendre le château ?", options: ["Piertotum Locomotor", "Locomotor Mortis", "Stupefix Maxima", "Arresto Momentum"], answer: 0 },
+                        { q: "Quel exercice de Métamorphose les élèves de 1re année font-ils avec des allumettes ?", options: ["Les transformer en aiguilles", "Les transformer en plumes", "Les faire léviter", "Les rendre invisibles"], answer: 0 },
+                        { q: "Comment appelle-t-on la branche modifiant la forme physique d'un être humain ?", options: ["La Métamorphose Humaine", "L'Occlumancie", "Le Polynectar", "La Transmutation"], answer: 0 },
+                        { q: "Quel sorcier peut changer son apparence physique dès la naissance sans sort ?", options: ["Un Métamorphomage", "Un Animagus", "Un Sorcier Pur-Sang", "Un Cracmol"], answer: 0 },
+                        { q: "Quelle sorcière célèbre de l'Ordre du Phénix est une Métamorphomage ?", options: ["Nymphadora Tonks", "Minerva McGonagall", "Fleur Delacour", "Molly Weasley"], answer: 0 }
+                    ]
+                },
+                {
+                    themeId: 3,
+                    themeTitle: "Équipements Magiques & Artefacts",
+                    questions: [
+                        { q: "Quel objet magique en verre tourne et siffle quand une personne indigne est proche ?", options: ["Le Scrutation (Sneakoscope)", "Le Rapeltout", "La Pensine", "Le Miroir"], answer: 0 },
+                        { q: "Quel objet ressemble à un œuf en verre rempli de fumée rouge quand on a oublié quelque chose ?", options: ["Le Rapeltout", "Le Scrutation", "La Boule de cristal", "Le Déluminateur"], answer: 0 },
+                        { q: "Quel élève de Gryffondor reçoit un Rapeltout de sa grand-mère ?", options: ["Neville Londubat", "Harry Potter", "Ron Weasley", "Seamus Finnigan"], answer: 0 },
+                        { q: "Quel instrument utilisé par Dumbledore permet d'analyser les souvenirs dans la Pensine ?", options: ["Sa baguette magique", "Une cuillère en argent", "Une fiole en verre", "Un miroir"], answer: 0 },
+                        { q: "Quel miroir montre non pas le visage mais le désir le plus profond du cœur ?", options: ["Le Miroir du Riséd", "Le Miroir à double sens", "Le Miroir de vérité", "Le Miroir de Poudlard"], answer: 0 },
+                        { q: "Que lit-on en inversant les lettres du mot « Riséd » ?", options: ["Désir", "Rêve", "Espoir", "Secret"], answer: 0 },
+                        { q: "Quel instrument permet d'éteindre et de capturer les lumières de la rue à distance ?", options: ["Le Déluminateur", "Le Lumos Wand", "L'Éteignoir magique", "Le Capture-Ombre"], answer: 0 },
+                        { q: "Qui a inventé le Déluminateur et l'a légué à Ron Weasley ?", options: ["Albus Dumbledore", "Nicholas Flamel", "Garrick Ollivander", "Godric Gryffondor"], answer: 0 },
+                        { q: "Quel artefact magique en forme de chapeau détermine la maison des nouveaux élèves ?", options: ["Le Choixpeau Magique", "La Couronne", "Le Chapeau de Sorcier", "Le Casque d'Or"], answer: 0 },
+                        { q: "À quel fondateur le Choixpeau Magique appartenait-il à l'origine ?", options: ["Godric Gryffondor", "Salazar Serpentard", "Rowena Serdaigle", "Helga Poufsouffle"], answer: 0 },
+                        { q: "Quel objet magique permet d'envoyer un message vocal hurlant à un élève ?", options: ["Une Beuglante", "Un Hibou rouge", "Une Lettre de Feu", "Un Parchemin hurlant"], answer: 0 },
+                        { q: "Qui envoie une Beuglante mémorable à Ron en 2e année après le vol de la voiture ?", options: ["Molly Weasley", "Arthur Weasley", "Professeur McGonagall", "Dumbledore"], answer: 0 },
+                        { q: "Quel objet permet de voyager instantanément en entrant dans une cheminée avec de la poudre ?", options: ["La Poudre de Cheminette", "La Poudre d'Escampette", "Le Portoloin", "Le Vol-Express"], answer: 0 },
+                        { q: "Quel objet ordinaire peut être enchanté pour transporter un groupe à une heure fixe ?", options: ["Un Portoloin", "Un Retourneur de Temps", "Une Poudre de Cheminette", "Un Balai"], answer: 0 },
+                        { q: "Quel mot magique formule-t-on pour créer un Portoloin à partir d'un objet ?", options: ["Portus", "Transporto", "Accio Portoloin", "Locomotor"], answer: 0 },
+                        { q: "Quel meuble magique dans la Salle sur Demande communique avec son double chez Borgin & Burkes ?", options: ["L'Armoire de Disparition", "La Malle magique", "Le Miroir magique", "Le Placard aux balais"], answer: 0 },
+                        { q: "Qui répare l'Armoire de Disparition en 6e année pour faire entrer les Mangemorts ?", options: ["Drago Malefoy", "Severus Rogue", "Vincent Crabbe", "Gregory Goyle"], answer: 0 },
+                        { q: "Quelle plume magique écrit toute seule ce que dit une personne en déformant la vérité ?", options: ["La Plume à Papote", "La Plume de Verité", "La Plume Enchantée", "La Plume Volante"], answer: 0 },
+                        { q: "Quelle journaliste scandaleuse utilise constamment une Plume à Papote ?", options: ["Rita Skeeter", "Lavender Brown", "Pansy Parkinson", "Dolores Ombrage"], answer: 0 },
+                        { q: "Quel objet ressemble à une montre à multiples aiguilles marquant les dangers de la famille ?", options: ["L'Horloge de la Famille Weasley", "La Montre d'Or de Dumbledore", "L'Horloge de Poudlard", "Le Chronomètre magique"], answer: 0 }
+                    ]
+                }
+            ],
+            Poufsouffle: [
+                {
+                    themeId: 0,
+                    themeTitle: "Valeurs, Fondateurs & Histoire",
+                    questions: [
+                        { q: "Quel est le nom de la fondatrice de la Maison Poufsouffle ?", options: ["Helga Poufsouffle", "Rowena Poufsouffle", "Pomona Poufsouffle", "Hannah Poufsouffle"], answer: 0 },
+                        { q: "Quelles sont les principales qualités valorisées par Poufsouffle ?", options: ["Loyauté, Patience et Travail acharné", "Courage et Bravoure", "Ruse et Ambition", "Sagesse et Érudition"], answer: 0 },
+                        { q: "Quel est l'animal symbole de la Maison Poufsouffle ?", options: ["Le Blaireau", "Le Lion", "L'Aigle", "Le Serpent"], answer: 0 },
+                        { q: "Quelles sont les deux couleurs officielles de la Maison Poufsouffle ?", options: ["Jaune et Noir", "Rouge et Or", "Vert et Argent", "Bleu et Bronze"], answer: 0 },
+                        { q: "Quel objet légendaire appartenu à Helga Poufsouffle possédait des pouvoirs d'alimentation ?", options: ["La Coupe de Poufsouffle", "Le Diadème", "L'Épée", "Le Chaudron d'Or"], answer: 0 },
+                        { q: "Quel est le nom du fantôme résident chaleureux et joyeux de Poufsouffle ?", options: ["Le Gros Moine", "Nick Quasi-Sans-Tête", "La Dame Grise", "Le Baron Sanglant"], answer: 0 },
+                        { q: "Qui est la directrice de la Maison Poufsouffle et professeur d'Herbologie ?", options: ["Pomona Chourave", "Minerva McGonagall", "Sybille Trelawney", "Rolanda Hooch"], answer: 0 },
+                        { q: "Où se situe la salle commune de Poufsouffle dans le château ?", options: ["Au sous-sol, près des cuisines", "Dans la tour Nord", "Dans les cachots", "Au 7e étage"], answer: 0 },
+                        { q: "Comment accède-t-on à la salle commune de Poufsouffle ?", options: ["En tapant en rythme « Helga Poufsouffle » sur les tonneaux", "Avec un mot de passe", "En résolvant une énigme", "En ouvrant un tableau"], answer: 0 },
+                        { q: "Que se passe-t-il si l'on se trompe de tonneau à l'entrée de Poufsouffle ?", options: ["L'intrus est inondé de vinaigre", "La porte l'enferme", "Un piège à feu se déclenche", "Rien ne se passe"], answer: 0 },
+                        { q: "Quel illustre magizoologiste auteur de *Les Animaux Fantastiques* était un Poufsouffle ?", options: ["Norbert Dragonneau", "Albus Dumbledore", "Rubeus Hagrid", "Charlie Weasley"], answer: 0 },
+                        { q: "Quel élève de Poufsouffle a été sélectionné comme champion pour le Tournoi des 3 Sorciers ?", options: ["Cédric Diggory", "Ernie Macmillan", "Justin Finch-Fletchley", "Zacharias Smith"], answer: 0 },
+                        { q: "Quel était le poste de Cédric Diggory dans l'équipe de Quidditch ?", options: ["Attrapeur et Capitaine", "Poursuiveur", "Batteur", "Gardien"], answer: 0 },
+                        { q: "Quel élève de Poufsouffle métamorphosé en préfet est resté loyal dans l'A.D. ?", options: ["Ernie Macmillan", "Justin Finch-Fletchley", "Seamus Finnigan", "Dean Thomas"], answer: 0 },
+                        { q: "Quelle élève de Poufsouffle passionnée d'Herbologie devient l'épouse de Neville ?", options: ["Hannah Abbott", "Susan Bones", "Leanne", "Megan Jones"], answer: 0 },
+                        { q: "Quelle élève décédée en 1943 hantera les toilettes des filles ?", options: ["Mimi Geignarde", "Helena Serdaigle", "La Dame Grise", "Lily Evans"], answer: 0 },
+                        { q: "Quelle sorcière Poufsouffle aux cheveux changeants est morte lors de la bataille finale ?", options: ["Nymphadora Tonks", "Pomona Chourave", "Emmeline Vance", "Hestia Jones"], answer: 0 },
+                        { q: "Quel patronus corporel adopte Nymphadora Tonks par amour pour Lupin ?", options: ["Un Loup", "Un Chien", "Un Blaireau", "Un Cerf"], answer: 0 },
+                        { q: "Quelle pierre précieuse remplit le sablier des points de Poufsouffle ?", options: ["Les Diamants jaunes", "Les Émeraudes", "Les Rubis", "Les Saphirs"], answer: 0 },
+                        { q: "Quelle est la particularité des dortoirs de Poufsouffle ?", options: ["Ce sont des chambres rondes aux portes circulaires comme des tannières", "Ce sont des tours très hautes", "Ce sont des cachots sombres", "Ce sont des greniers"], answer: 0 }
+                    ]
+                },
+                {
+                    themeId: 1,
+                    themeTitle: "Herbologie & Plantes Magiques",
+                    questions: [
+                        { q: "Quelle plante magique pousse un cri mortel lorsqu'elle est déterrée ?", options: ["La Mandragore", "Le Filet du Diable", "La Tentacula Vénéneuse", "Le Bubobulb"], answer: 0 },
+                        { q: "Que doivent porter les élèves pour se protéger les oreilles lors des cours sur les Mandragores ?", options: ["Des cache-oreilles", "Des casques d'or", "Des bouchons de cire", "Des capuchons"], answer: 0 },
+                        { q: "À quoi sert la Potion à base de Mandragores adultes restaurées ?", options: ["À libérer les personnes pétrifiées", "À guérir les brûlures", "À endormir les dragons", "À léviter"], answer: 0 },
+                        { q: "Quelle plante noire possède des Tentacula vénéneuses qui attrapent les proies ?", options: ["La Tentacula Vénéneuse", "Le Filet du Diable", "La Mandragore", "Le Mimbulus"], answer: 0 },
+                        { q: "Quelle plante étouffante à lianes noires déteste la lumière et le feu ?", options: ["Le Filet du Diable", "La Mandragore", "La Tentacula Vénéneuse", "Le Saule Cogneur"], answer: 0 },
+                        { q: "Quelle plante couverte de pustules produit un pus guérissant l'acné sévère ?", options: ["Le Bubobulb", "La Mandragore", "Le Mimbulus", "La Branchiflore"], answer: 0 },
+                        { q: "Quelle plante aqueuse permet de faire pousser des ouïes et des palmes sous l'eau ?", options: ["La Branchiflore", "La Mandragore", "Le Filet du Diable", "L'Armoise"], answer: 0 },
+                        { q: "Combien de temps durent les effets de la Branchiflore dans l'eau douce d'un lac ?", options: ["Environ 1 heure", "10 minutes", "24 heures", "30 minutes"], answer: 0 },
+                        { q: "Quel arbre magique et violent situé dans le parc de Poudlard frappe tout ce qui s'approche ?", options: ["Le Saule Cogneur", "Le Chêne Magique", "Le Sureau Noir", "Le Pin Sanglant"], answer: 0 },
+                        { q: "En quelle année le Saule Cogneur a-t-il été planté à Poudlard ?", options: ["En 1971 (pour protéger Lupin)", "En 1991", "En 1900", "À la fondation de Poudlard"], answer: 0 },
+                        { q: "Quelle plante parasite magique est utilisée pour s'embrasser à Noël ?", options: ["Le Gui magique", "Le Houx", "La Rose d'Ombre", "L'Asphodèle"], answer: 0 },
+                        { q: "Quelle plante rare ressemblant à un cactus jette du jus puant (Stinksap) ?", options: ["La Mimbulus Mimbletonia", "Le Bubobulb", "La Tentacula", "La Mandragore"], answer: 0 },
+                        { q: "Quel élève reçoit une Mimbulus Mimbletonia de son grand-oncle Algie ?", options: ["Neville Londubat", "Harry Potter", "Ron Weasley", "Seamus Finnigan"], answer: 0 },
+                        { q: "Dans quelles serres de Poudlard le Professeur Chourave donne-t-elle ses cours ?", options: ["Les Serres de Poudlard", "La Tour d'Herbologie", "Le Jardin Botanique", "Le Parterre du Lac"], answer: 0 },
+                        { q: "Quelle serre abrite les plantes les plus dangereuses réservées aux élèves avancés ?", options: ["La Serre n°3", "La Serre n°1", "La Serre n°7", "La Serre n°5"], answer: 0 },
+                        { q: "Quelle plante magique mobile et carnivore tente de dévorer les doigts des élèves ?", options: ["Le Géranium Denteleur", "La Mandragore", "Le Filet du Diable", "La Rose Noire"], answer: 0 },
+                        { q: "Quel champignon magique sauteur est utilisé dans la Potion de Rabougrissement ?", options: ["Le Champignon Sauteur", "La Truffe Magique", "Le Crotale séché", "L'Amanite"], answer: 0 },
+                        { q: "Quel arbre magique produit un bois d'excellente qualité pour fabriquer des baguettes ?", options: ["Le Saule / Chêne / Houx / Sureau", "Le Baobab", "Le Cocotier", "Le Sapin"], answer: 0 },
+                        { q: "Quel elfe de maison apporte la Branchiflore à Harry avant la 2e tâche du Tournoi ?", options: ["Dobby", "Kreattur", "Winky", "Hokey"], answer: 0 },
+                        { q: "Que cultive Hagrid dans son potager pour Halloween ?", options: ["Des citrouilles géantes", "Des mandragores", "Des Mimbulus", "Du gui magique"], answer: 0 }
+                    ]
+                },
+                {
+                    themeId: 2,
+                    themeTitle: "Créatures & Animaux Fantastiques",
+                    questions: [
+                        { q: "Quelle créature magique noire est obsédée par tout ce qui brille et l'or ?", options: ["Le Niffleur", "Le Botruc", "L'Occamy", "Le Sombral"], answer: 0 },
+                        { q: "Où le Niffleur stocke-t-il tous les objets d'or et bijoux qu'il vole ?", options: ["Dans sa poche ventrale extensible", "Dans son nid", "Sous la terre", "Dans sa bouche"], answer: 0 },
+                        { q: "Quelle petite créature verte ressemblant à une brindille protège les arbres à baguettes ?", options: ["Le Botruc", "Le Niffleur", "Le Lutin de Cornouailles", "Le Gnome"], answer: 0 },
+                        { q: "Quel est le nom du Botruc préféré de Norbert Dragonneau ?", options: ["Pickett", "Barnaby", "Charlie", "Teddy"], answer: 0 },
+                        { q: "Quelle créature reptilienne ailée peut s'agrandir ou rétrécir selon l'espace ?", options: ["L'Occamy", "Le Thunderbird", "Le Demiguise", "L'Éruptif"], answer: 0 },
+                        { q: "En quel métal précieux et pur les œufs d'Occamy sont-ils faits ?", options: ["En Argent pur", "En Or massif", "En Platine", "En Diamant"], answer: 0 },
+                        { q: "Quelle créature majestueuse mi-cheval mi-aigle exige une révérence avant d'être approchée ?", options: ["L'Hippogriffe", "Le Sombral", "Le Centaure", "Le Griffon"], answer: 0 },
+                        { q: "Quel est le nom de l'Hippogriffe sauvé de l'exécution en 3e année ?", options: ["Buck", "Touffu", "Crocdur", "Aragog"], answer: 0 },
+                        { q: "Quelles créatures squelettiques ailées ne peuvent être vues que par ceux qui ont vu la mort ?", options: ["Les Sombrals", "Les Hippogriffes", "Les Détraqueurs", "Les Strangulots"], answer: 0 },
+                        { q: "Quel chat roux au visage aplati est le familier d'Hermione ?", options: ["Pattenrond", "Miss Teigne", "Croûtard", "Hedwige"], answer: 0 },
+                        { q: "Quel grand oiseau magique renaît de ses cendres et possède des larmes guérisseuses ?", options: ["Le Phénix", "Le Thunderbird", "L'Aigle royal", "Le Griffon"], answer: 0 },
+                        { q: "Quel est le nom du Phénix d'Albus Dumbledore ?", options: ["Fumseck", "Buck", "Errol", "Pigwichon"], answer: 0 },
+                        { q: "Quelle créature aquatique malveillante attirant les humains dans les marécages porte une lanterne ?", options: ["Le Pitiponk", "Le Sirenien", "Le Kraken", "La Goule"], answer: 0 },
+                        { q: "Quel démon aquatique d'Écosse peut prendre la forme d'un cheval d'algues géant ?", options: ["Le Kelpie", "Le Strangulot", "Le Basilic", "L'Occamy"], answer: 0 },
+                        { q: "Quelle araignée géante monstrueuse dotée de la parole vit dans la Forêt Interdite ?", options: ["L'Acromantule (Aragog)", "Le Basilic", "Le Scrut", "Le Niffleur"], answer: 0 },
+                        { q: "Quel reptile géant né d'un œuf de poule couvé par un crapaud peut tuer d'un regard ?", options: ["Le Basilic", "L'Acromantule", "Le Dragon Magyar", "Le Serpentard"], answer: 0 },
+                        { q: "Quel est le seul ennemi mortel que le Basilic redoute au point de fuir ?", options: ["Le chant du coq", "Le feu de dragon", "Le miaulement de chat", "Le cri de la mandragore"], answer: 0 },
+                        { q: "Quelle créature métamorphe prend la forme de la terreur la plus profonde d'une personne ?", options: ["L'Épouvantard", "Le Détraqueur", "Le Sombral", "Le Gnome"], answer: 0 },
+                        { q: "Quelle créature insectoïde transparente produit une poudre apportant la lévitation ?", options: ["Le Billywig", "Le Botruc", "Le FWOOPER", "Le Doxy"], answer: 0 },
+                        { q: "Quelle créature féerique semblable à un singe de soie blanche peut devenir invisible ?", options: ["Le Démiguise", "Le Niffleur", "L'Occamy", "Le Zouwu"], answer: 0 }
+                    ]
+                },
+                {
+                    themeId: 3,
+                    themeTitle: "Vie à Poudlard, Banquets & Gastronomie",
+                    questions: [
+                        { q: "Quelle boisson chaude au goût de caramel est la préférée des sorciers ?", options: ["La Bièraubeurre", "Le Jus de Citrouille", "L'Hydromel", "Le Thé aux orties"], answer: 0 },
+                        { q: "Dans quel célèbre pub de Pré-au-Lard sert-on la meilleure Bièraubeurre ?", options: ["Les Trois Balais", "La Tête de Sanglier", "Le Chaudron Baveur", "Zonko"], answer: 0 },
+                        { q: "Qui est la propriétaire chaleureuse du pub Les Trois Balais ?", options: ["Madame Rosmerta", "Molly Weasley", "Dolores Ombrage", "Rita Skeeter"], answer: 0 },
+                        { q: "Quel pub plus sombre de Pré-au-Lard est tenu par Abelforth Dumbledore ?", options: ["La Tête de Sanglier", "Les Trois Balais", "Borgin & Burkes", "Le Chaudron Baveur"], answer: 0 },
+                        { q: "Quelle confiserie magique célèbre contient des cartes de collection de sorciers ?", options: ["Les Grenouilles de Chocolat", "Les Dragées de Bertie Crochue", "Les Piments Ensorcelés", "Les Fizwizbiz"], answer: 0 },
+                        { q: "Quel sorcier célèbre Harry obtient-il sur sa 1re carte de Grenouille de Chocolat ?", options: ["Albus Dumbledore", "Godric Gryffondor", "Merlin", "Nicholas Flamel"], answer: 0 },
+                        { q: "Quelles friandises proposent des goûts allant de la fraise à la crotte de nez ?", options: ["Les Dragées surprises de Bertie Crochue", "Les Grenouilles de Chocolat", "Les Macarons", "Les Piments"], answer: 0 },
+                        { q: "Quel goût répugnant Dumbledore a-t-il eu le malheur de tomber dessus ?", options: ["Goût de Crotte de nez / Cire d'oreille", "Goût de savon", "Goût d'herbe", "Goût de terre"], answer: 0 },
+                        { q: "Quel est le nom du célèbre magasin de bonbons et sucreries situé à Pré-au-Lard ?", options: ["Honeydukes", "Zonko", "Weasley Farces", "Scrivenshaft"], answer: 0 },
+                        { q: "Qui prépare et cuisine tous les festins magiques servis dans la Grande Salle ?", options: ["Les Elfes de Maison", "Les Professeurs", "Des cuisiniers moldus", "La magie automatique"], answer: 0 },
+                        { q: "Quel jus de fruit est la boisson servie quotidiennement sur les tables de la Grande Salle ?", options: ["Le Jus de Citrouille", "Le Jus d'Orange magique", "Le Jus de Pomme enchanté", "Le Jus de Raisin"], answer: 0 },
+                        { q: "Quel gâteau préparé par Hagrid est tellement dur qu'il casse presque les dents ?", options: ["Les Gâteaux à la Pâte de Roche", "Les Tartes à la citrouille", "Les Biscuits au gingembre", "Le Pouding au suif"], answer: 0 },
+                        { q: "Quelle friandise magique fait sortir de la fumée par les oreilles et le nez ?", options: ["Les Piments Ensorcelés", "Les Dragées surprises", "Les Caramels à la menthe", "Les Fizwizbiz"], answer: 0 },
+                        { q: "Bonbons permettant de léviter à quelques centimètres du sol pendant qu'on les suce :", options: ["Les Fizwizbiz", "Les Piments Ensorcelés", "Les Sucrettes", "Les Patacitrouilles"], answer: 0 },
+                        { q: "Quel plat traditionnel britannique est servi au banquet de bienvenue de la rentrée ?", options: ["Roast Beef, Saucisses & Yorkshire Pudding", "Pizza magique", "Soupe de poissons", "Tarte aux pommes"], answer: 0 },
+                        { q: "Quelle boisson/nourriture spéciale Lupin donne-t-il à Harry après un Détraqueur ?", options: ["Du Chocolat", "De la Bièraubeurre", "Du Jus de Citrouille", "Une Potion d'Aura"], answer: 0 },
+                        { q: "Quel magasin de blagues sur le Chemin de Traverse a été fondé par Fred et George ?", options: ["Farces pour sorciers facétieux (Weasleys' Wizard Wheezes)", "Zonko", "Honeydukes", "Borgin & Burkes"], answer: 0 },
+                        { q: "Quel bonbon des jumeaux Weasley donne une forte fièvre temporaire pour sécher les cours ?", options: ["Les Frissons-Nouilles (Fever Fudge)", "Les Pastilles Gobe-Vomi", "Les Nougats Nenez", "Les Bonbons Sécheurs"], answer: 0 },
+                        { q: "Quel bonbon des jumeaux Weasley fait vomir immédiatement l'élève qui le mange ?", options: ["Les Pastilles Gobe-Vomi", "Les Frissons-Nouilles", "Les Piments", "Les Dragées"], answer: 0 },
+                        { q: "Quel festin d'Halloween célèbre est interrompu par l'arrivée d'un Troll ?", options: ["Le Banquet d'Halloween de 1re année", "Le Bal de Noël", "Le Festin de Rentrée", "Le Repas de Fin d'Année"], answer: 0 }
+                    ]
+                }
+            ]
+        };
+
+        // State variables
+        let selectedHouse = "Gryffondor";
+        let houseIcon = "🦁";
+        let houseStyleClass = "";
+        let currentThemeIdx = 0;
+        let currentQuestions = [];
+        let currentQuestionIdx = 0;
+        let currentThemeScore = 0;
+        let currentShuffledOptions = [];
+        let currentCorrectIndex = 0;
+        let answered = false;
+
+        // House Scores state stored in localStorage
+        const HOUSE_NAMES = ['Gryffondor', 'Serpentard', 'Serdaigle', 'Poufsouffle'];
+        function freshScores() {
+            const o = {};
+            HOUSE_NAMES.forEach(h => o[h] = { themesCompleted: [false, false, false, false], themeScores: [0, 0, 0, 0], totalScore: 0 });
+            return o;
+        }
+        function loadScores() {
+            const fresh = freshScores();
+            try {
+                const raw = JSON.parse(localStorage.getItem('potter_house_scores'));
+                if (!raw) return fresh;
+                HOUSE_NAMES.forEach(h => {
+                    const r = raw[h]; if (!r) return;
+                    const done = Array.isArray(r.themesCompleted) ? r.themesCompleted.slice(0, 4) : [];
+                    while (done.length < 4) done.push(false);
+                    let scores = Array.isArray(r.themeScores) ? r.themeScores.slice(0, 4) : null;
+                    if (!scores) { // migration anciennes sauvegardes
+                        const n = done.filter(Boolean).length;
+                        const share = n ? Math.round(Math.min(r.totalScore || 0, n * 200) / n) : 0;
+                        scores = done.map(d => d ? share : 0);
+                    }
+                    fresh[h] = { themesCompleted: done, themeScores: scores, totalScore: scores.reduce((a, b) => a + (b || 0), 0) };
+                });
+            } catch (e) {}
+            return fresh;
+        }
+        let houseScores = loadScores();
+        let streak = 0;
+
+        function saveScores() {
+            localStorage.setItem('potter_house_scores', JSON.stringify(houseScores));
+            updateLeaderboardUI();
+        }
+
+        // Audio System Synthesizer
+        let audioCtx = null;
+        let isAudioPlaying = false;
+        let audioInterval = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playNote(freq, duration, type = 'sine', delay = 0) {
+            if (!audioCtx) return;
+            setTimeout(() => {
+                try {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + duration);
+                } catch(e) {}
+            }, delay);
+        }
+
+        function playBackgroundMusic() {
+            if (!isAudioPlaying || !audioCtx) return;
+            const notes = [
+                {f: 493.88, d: 400}, {f: 659.25, d: 600}, {f: 783.99, d: 300},
+                {f: 739.99, d: 300}, {f: 659.25, d: 600}, {f: 987.77, d: 400},
+                {f: 880.00, d: 800}, {f: 739.99, d: 800}
+            ];
+            let timeOffset = 0;
+            notes.forEach(n => {
+                playNote(n.f, n.d / 1000, 'triangle', timeOffset);
+                timeOffset += n.d + 150;
+            });
+        }
+
+        function toggleAudio() {
+            initAudio();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            isAudioPlaying = !isAudioPlaying;
+            const icon = document.getElementById('music-icon');
+            if (isAudioPlaying) {
+                icon.className = "fa-solid fa-volume-high text-amber-400";
+                playBackgroundMusic();
+                audioInterval = setInterval(playBackgroundMusic, 5600);
+            } else {
+                icon.className = "fa-solid fa-volume-xmark";
+                clearInterval(audioInterval);
+            }
+        }
+
+        function playFX(type) {
+            if (!audioCtx) return;
+            if (type === 'correct') {
+                playNote(523.25, 0.2, 'sine', 0);
+                playNote(659.25, 0.2, 'sine', 100);
+                playNote(783.99, 0.4, 'sine', 200);
+            } else if (type === 'wrong') {
+                playNote(220, 0.3, 'sawtooth', 0);
+                playNote(196, 0.4, 'sawtooth', 150);
+            } else if (type === 'fanfare') {
+                playNote(523.25, 0.2, 'triangle', 0);
+                playNote(659.25, 0.2, 'triangle', 150);
+                playNote(783.99, 0.2, 'triangle', 300);
+                playNote(1046.50, 0.6, 'triangle', 450);
+            }
+        }
+
+        
+        // Leaderboard UI logic
+        function updateLeaderboardUI() {
+            const list = document.getElementById('leaderboard-list');
+            if (!list) return;
+
+            const sortedHouses = Object.keys(houseScores).sort((a, b) => houseScores[b].totalScore - houseScores[a].totalScore);
+            list.innerHTML = '';
+
+            sortedHouses.forEach((h, index) => {
+                const icon = h === 'Gryffondor' ? '🦁' : h === 'Serpentard' ? '🐍' : h === 'Serdaigle' ? '🦅' : '🦡';
+                const completedCount = houseScores[h].themesCompleted.filter(Boolean).length;
+                
+                const item = document.createElement('div');
+                item.className = "flex justify-between items-center py-1 border-b border-stone-800/50 last:border-0";
+                item.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-amber-400 w-4">${index + 1}.</span>
+                        <span>${icon} ${h}</span>
+                        <span class="text-[10px] text-stone-500">(${completedCount}/4 épreuves)</span>
+                    </div>
+                    <span class="font-cinzel font-bold text-amber-300">${houseScores[h].totalScore} pts</span>
+                `;
+                list.appendChild(item);
+
+                const houseScoreEl = document.getElementById(`score-display-${h}`);
+                if (houseScoreEl) {
+                    houseScoreEl.textContent = `Score : ${houseScores[h].totalScore} pts`;
+                }
+            });
+        }
+
+        function resetAllScores() {
+            if (confirm("Voulez-vous réinitialiser le tableau des scores de toutes les maisons ?")) {
+                houseScores = freshScores();
+                saveScores();
+            }
+        }
+
+        // Navigation Screens
+        function goHome() {
+            const inQuiz = !document.getElementById('screen-quiz').classList.contains('hidden');
+            if (inQuiz && !confirm("Quitter le quiz en cours ? Les points de cette épreuve seront perdus.")) return;
+            showHouseSelection();
+        }
+
+        function showHouseSelection() {
+            delete document.body.dataset.house;
+            updateLeaderboardUI();
+            document.getElementById('screen-house').classList.remove('hidden');
+            document.getElementById('screen-category').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-theme-results').classList.add('hidden');
+            document.getElementById('screen-house-final').classList.add('hidden');
+        }
+
+        function selectHouse(name, icon, styleClass) {
+            selectedHouse = name;
+            document.body.dataset.house = name;
+            houseIcon = icon;
+            houseStyleClass = styleClass;
+
+            const pill = document.getElementById('house-pill');
+            document.getElementById('house-pill-icon').textContent = icon;
+            document.getElementById('house-pill-name').textContent = name;
+            pill.className = `inline-flex items-center space-x-1.5 px-3 py-0.5 rounded-full border text-xs font-bold font-cinzel ${styleClass}`;
+
+            showCategorySelection();
+        }
+
+        function showCategorySelection() {
+            document.getElementById('screen-house').classList.add('hidden');
+            document.getElementById('screen-category').classList.remove('hidden');
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-theme-results').classList.add('hidden');
+            document.getElementById('screen-house-final').classList.add('hidden');
+
+            renderThemeButtons();
+        }
+
+        function renderThemeButtons() {
+            const container = document.getElementById('theme-buttons-container');
+            container.innerHTML = '';
+
+            const themes = fullDatabase[selectedHouse];
+            const completed = houseScores[selectedHouse].themesCompleted;
+
+            themes.forEach((t, idx) => {
+                const isDone = completed[idx];
+                const btn = document.createElement('button');
+                btn.onclick = () => startThemeQuiz(idx);
+                btn.className = `theme-card w-full magical-border p-3.5 rounded-xl text-left flex items-center justify-between transition-all active:scale-98 ${isDone ? 'bg-emerald-950/30 border-emerald-500/40' : 'bg-stone-900/90'}`;
+
+                btn.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-lg ${isDone ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/10 text-amber-400'} flex items-center justify-center text-lg shrink-0">
+                            <i class="fa-solid ${isDone ? 'fa-circle-check' : 'fa-scroll'}"></i>
+                        </div>
+                        <div>
+                            <div class="font-cinzel font-bold text-amber-200 text-xs">${t.themeTitle}</div>
+                            <div class="text-[10px] text-stone-400">20 Questions - ${isDone ? 'Épreuve Validée' : 'Épreuve Disponible'}</div>
+                        </div>
+                    </div>
+                    <div class="text-xs font-bold font-cinzel ${isDone ? 'text-emerald-400' : 'text-amber-400'}">
+                        ${isDone ? 'REJOUER' : 'JOUER'}
+                    </div>
+                `;
+                container.appendChild(btn);
+            });
+
+            const allCompleted = completed.every(Boolean);
+            const finalBtn = document.getElementById('final-house-score-btn');
+            if (allCompleted) {
+                finalBtn.classList.remove('hidden');
+            } else {
+                finalBtn.classList.add('hidden');
+            }
+        }
+
+        function startThemeQuiz(tIdx) {
+            currentThemeIdx = tIdx;
+            const themeObj = fullDatabase[selectedHouse][tIdx];
+
+            currentQuestions = [...themeObj.questions].sort(() => Math.random() - 0.5);
+            currentQuestionIdx = 0;
+            currentThemeScore = 0;
+            streak = 0;
+
+            document.getElementById('quiz-theme-title').textContent = themeObj.themeTitle;
+            document.getElementById('quiz-score').textContent = "0 pts";
+            document.getElementById('total-q-num').textContent = currentQuestions.length;
+
+            document.getElementById('screen-category').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answered = false;
+            const qData = currentQuestions[currentQuestionIdx];
+
+            document.getElementById('current-q-num').textContent = currentQuestionIdx + 1;
+            document.getElementById('progress-bar').style.width = `${(currentQuestionIdx / currentQuestions.length) * 100}%`;
+            document.getElementById('question-text').textContent = qData.q;
+            document.getElementById('feedback-container').classList.add('hidden');
+
+            // Shuffle Options (Fisher-Yates) to randomize answer positions (A, B, C, D)
+            const rawOptions = qData.options.map((opt, idx) => ({
+                text: opt,
+                isCorrect: (idx === qData.answer)
+            }));
+
+            for (let i = rawOptions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [rawOptions[i], rawOptions[j]] = [rawOptions[j], rawOptions[i]];
+            }
+
+            currentShuffledOptions = rawOptions;
+            currentCorrectIndex = rawOptions.findIndex(o => o.isCorrect);
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            rawOptions.forEach((optObj, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "opt-btn w-full p-2.5 rounded-lg border border-stone-700 bg-stone-800/90 text-left font-sans text-xs text-stone-200 flex items-center space-x-2.5 active:scale-98 transition-all";
+                btn.onclick = () => selectOption(idx);
+                btn.innerHTML = `
+                    <span class="w-5 h-5 rounded-full bg-stone-900 border border-stone-600 flex items-center justify-center text-[10px] font-bold text-amber-400 shrink-0">${String.fromCharCode(65 + idx)}</span>
+                    <span class="flex-grow">${optObj.text}</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function selectOption(idx) {
+            if (answered) return;
+            answered = true;
+            document.getElementById('progress-bar').style.width = `${((currentQuestionIdx + 1) / currentQuestions.length) * 100}%`;
+
+            const container = document.getElementById('options-container');
+            const btns = container.querySelectorAll('button');
+            const feedbackContainer = document.getElementById('feedback-container');
+            const feedbackBanner = document.getElementById('feedback-banner');
+
+            if (idx === currentCorrectIndex) {
+                currentThemeScore += 10;
+                streak++;
+                playFX('correct');
+                document.getElementById('quiz-score').textContent = `${currentThemeScore} pts`;
+                btns[idx].classList.add('correct-btn');
+                feedbackBanner.className = "p-2 rounded-lg text-center font-semibold text-xs bg-emerald-950/80 border border-emerald-500 text-emerald-200";
+                feedbackBanner.textContent = "✨ Correct ! (+10 points)" + (streak >= 3 ? ` 🔥 Série de ${streak} !` : "");
+            } else {
+                playFX('wrong');
+                streak = 0;
+                btns[idx].classList.add('wrong-btn');
+                btns[currentCorrectIndex].classList.add('correct-btn');
+                feedbackBanner.className = "p-2 rounded-lg text-center font-semibold text-xs bg-red-950/80 border border-red-500 text-red-200";
+                feedbackBanner.textContent = `❌ Incorrect ! Réponse : ${currentShuffledOptions[currentCorrectIndex].text}`;
+            }
+
+            feedbackContainer.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIdx++;
+            if (currentQuestionIdx < currentQuestions.length) {
+                loadQuestion();
+            } else {
+                finishTheme();
+            }
+        }
+
+        function finishTheme() {
+            const hs = houseScores[selectedHouse];
+            const prevBest = hs.themeScores[currentThemeIdx] || 0;
+            const wasDone = hs.themesCompleted[currentThemeIdx];
+            const isRecord = !wasDone || currentThemeScore > prevBest;
+            hs.themesCompleted[currentThemeIdx] = true;
+            if (isRecord) hs.themeScores[currentThemeIdx] = currentThemeScore;
+            hs.totalScore = hs.themeScores.reduce((a, b) => a + b, 0);
+            saveScores();
+
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-theme-results').classList.remove('hidden');
+
+            const accuracy = Math.round((currentThemeScore / (currentQuestions.length * 10)) * 100);
+            const themesObj = fullDatabase[selectedHouse];
+
+            document.getElementById('theme-res-title').textContent = `${themesObj[currentThemeIdx].themeTitle} Terminé !`;
+            document.getElementById('theme-res-subtitle').textContent = `Épreuve accomplie pour la maison ${selectedHouse}`;
+            document.getElementById('theme-res-score').textContent = `${currentThemeScore} pts`;
+            document.getElementById('theme-res-accuracy').textContent = `${accuracy}% de bonnes réponses (${currentThemeScore/10}/${currentQuestions.length})${wasDone ? (isRecord ? ' — 🏆 Nouveau record !' : ` — Meilleur score conservé : ${prevBest} pts`) : ''}`;
+
+            playFX('fanfare');
+        }
+
+        function showFinalHouseDiploma() {
+            document.getElementById('screen-category').classList.add('hidden');
+            document.getElementById('screen-house-final').classList.remove('hidden');
+
+            const totalScore = houseScores[selectedHouse].totalScore;
+            const accuracy = Math.min(100, Math.round((totalScore / 800) * 100));
+
+            document.getElementById('final-house-name').textContent = `${houseIcon} Maison ${selectedHouse}`;
+            document.getElementById('final-house-score').textContent = `${totalScore} pts`;
+            document.getElementById('final-house-accuracy').textContent = `${accuracy}% de réussite globale aux 80 questions`;
+
+            const title = document.getElementById('final-diploma-title');
+            const desc = document.getElementById('final-diploma-desc');
+
+            if (accuracy >= 80) {
+                title.textContent = "Bilan B.U.S.E. : Optimal (O)";
+                desc.textContent = "Brillantissime ! Vous honorez le fondateur de votre maison de la plus belle des manières.";
+            } else if (accuracy >= 50) {
+                title.textContent = "Bilan B.U.S.E. : Effort Exceptionnel (E)";
+                desc.textContent = "Très bon niveau de sorcellerie ! La salle commune célèbre votre bravoure et savoir.";
+            } else {
+                title.textContent = "Bilan B.U.S.E. : Troll (T)";
+                desc.textContent = "Poudlard vous conseille de retourner réviser à la bibliothèque avant la prochaine soirée !";
+            }
+
+            playFX('fanfare');
+        }
+
+        // Installation (vraie appli sur l'écran d'accueil)
+        let deferredPrompt = null;
+        const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+        const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+        function updateInstallBtn() {
+            document.getElementById('install-btn').classList.toggle('hidden', isStandalone());
+        }
+        window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
+        window.addEventListener('appinstalled', () => { deferredPrompt = null; updateInstallBtn(); });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.finally(() => { deferredPrompt = null; updateInstallBtn(); });
+            } else {
+                openInstallHelp();
+            }
+        }
+        function openInstallHelp() {
+            const steps = isIOS
+                ? ['Ouvre cette page dans <b>Safari</b>.', 'Touche le bouton <b>Partager</b> <i class="fa-solid fa-arrow-up-from-bracket text-amber-400"></i> en bas de l\'écran.', 'Choisis <b>« Sur l\'écran d\'accueil »</b>, puis <b>Ajouter</b>.']
+                : ['Ouvre cette page dans <b>Chrome</b>.', 'Touche le menu <b>⋮</b> en haut à droite.', 'Choisis <b>« Installer l\'application »</b> (ou « Ajouter à l\'écran d\'accueil »).'];
+            document.getElementById('install-steps').innerHTML = steps.map(t => `<li>${t}</li>`).join('');
+            document.getElementById('install-modal').classList.remove('hidden');
+        }
+        function closeInstallHelp() { document.getElementById('install-modal').classList.add('hidden'); }
+
+        if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+        updateInstallBtn();
+
+        // Raccourcis clavier : A-D / 1-4 pour répondre, Entrée / Espace / → pour continuer
+        document.addEventListener('keydown', e => {
+            if (document.getElementById('screen-quiz').classList.contains('hidden')) return;
+            const k = e.key.toLowerCase();
+            let idx = 'abcd'.indexOf(k);
+            if (idx < 0) idx = ['1', '2', '3', '4'].indexOf(k);
+            if (k.length === 1 && idx >= 0 && !answered) { selectOption(idx); }
+            else if (answered && (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight')) { e.preventDefault(); nextQuestion(); }
+        });
+
+        // Init Leaderboard on launch
+        updateLeaderboardUI();
+    </script>
+</body>
+</html>
